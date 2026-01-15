@@ -1,0 +1,17 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Organization;
+use Illuminate\Database\Seeder;
+
+class OrganizationTableSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        Organization::factory()->create();
+    }
+}
