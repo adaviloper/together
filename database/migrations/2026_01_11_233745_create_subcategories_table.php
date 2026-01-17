@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Category::class);
             $table->string('name');
+            $table->unsignedBigInteger('monthly_budgeted')->default(0);
             $table->timestamps();
         });
     }

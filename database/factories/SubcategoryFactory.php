@@ -17,7 +17,7 @@ class SubcategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'monthly_budgeted' => $this->faker->randomNumber(3),
         ];
     }
 }

@@ -18,7 +18,6 @@ class CategoryFactory extends Factory
     {
         return [
             'name' => $this->faker->word(),
-            'monthly_budgeted' => $this->faker->randomNumber(3),
         ];
     }
 }

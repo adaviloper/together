@@ -18,8 +18,11 @@ class CategoriesTable
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
-                TextInputColumn::make('monthly_budgeted')
-                    ->searchable(),
+                TextColumn::make('monthly_budgeted')
+                    ->sum('subcategories', 'monthly_budgeted')
+                    ->default(0),
+                TextColumn::make('subcategories_count')
+                    ->counts('subcategories'),
                 TextColumn::make('subcategories_count')
                     ->counts('subcategories')
                     ->searchable(),

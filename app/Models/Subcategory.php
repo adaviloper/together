@@ -19,6 +19,7 @@ class Subcategory extends Model
 
     protected $fillable = [
         'category_id',
+        'monthly_budgeted',
         'name',
     ];
 

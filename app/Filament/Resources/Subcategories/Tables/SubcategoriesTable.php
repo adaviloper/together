@@ -8,6 +8,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,6 +23,8 @@ class SubcategoriesTable
                     ->optionsRelationship('category', 'name')
                     ->sortable(),
                 TextColumn::make('name')
+                    ->searchable(),
+                TextInputColumn::make('monthly_budgeted')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
