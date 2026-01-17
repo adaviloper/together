@@ -34,5 +34,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(CategoryTableSeeder::class);
+        $this->call(SubcategoryTableSeeder::class);
+        /* $this->call(ImportMappingTableSeeder::class); */
+        $this->call(TransactionTableSeeder::class);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Categories\Widgets;
 
 use App\Models\Transaction;
 use App\Models\User;
+use Filament\Support\Colors\Color;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Database\Query\Builder;
 use NumberFormatter;
@@ -40,6 +41,7 @@ class MonthlyCategoryPie extends ChartWidget
         /*     'keys' => $transactions->keys()->toArray(), */
         /*     'values' => $transactions->values()->toArray(), */
         /* ], __METHOD__ . ':' . __LINE__); */
+
         return [
             'labels' => $transactions->keys()->toArray(),
             'datasets' => [
@@ -47,9 +49,13 @@ class MonthlyCategoryPie extends ChartWidget
                     'label' => 'Where is my money going?',
                     'data' => $transactions->values()->toArray(),
                     'backgroundColor' => [
-                        'rgb(255, 99, 132)',
-                        'rgb(54, 162, 235)',
-                        'rgb(255, 205, 86)',
+                        Color::Red["500"],
+                        Color::Yellow["500"],
+                        Color::Green["500"],
+                        Color::Blue["500"],
+                        Color::Stone["500"],
+                        Color::Gray["500"],
+                        Color::Zinc["500"],
                     ],
                     'hoverOffset' => 4,
                 ],

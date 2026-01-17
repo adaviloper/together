@@ -2,12 +2,18 @@
 
 namespace App\Models;
 
+use Database\Factories\TransactionFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @method static TransactionFactory factory()
+ */
 class Transaction extends Model
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $fillable = [

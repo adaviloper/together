@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Subcategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,6 +19,7 @@ class SubcategoryFactory extends Factory
     {
         return [
             'monthly_budgeted' => $this->faker->randomNumber(3),
+            'category_id' => Subcategory::factory(),
         ];
     }
 }
