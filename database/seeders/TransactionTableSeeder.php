@@ -57,9 +57,12 @@ class TransactionTableSeeder extends Seeder
     public function generateTransaction(string $category, User $user, int $month, int $count = 1): void
     {
         $subcategory = $this->categories[$category]->subcategories->shuffle()->first();
+        $method = rand(0, 1000) < 75 ? 'credit' : 'debit';
 
         try {
-            $transaction = Transaction::factory()->create([
+            $transaction = Transaction::factory()
+                ->{$method}()
+                ->create([
                 'category_id' => $subcategory?->category_id,
                 'subcategory_id' => $subcategory?->id,
                 'user_id' => $user->id,

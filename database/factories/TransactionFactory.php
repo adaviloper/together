@@ -31,4 +31,22 @@ class TransactionFactory extends Factory
             'user_id' => fn () => User::factory()->create()->id,
         ];
     }
+
+    public function debit(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'credit' => null,
+            ];
+        });
+    }
+
+    public function credit(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'debit' => null,
+            ];
+        });
+    }
 }
