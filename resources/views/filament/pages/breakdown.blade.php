@@ -1,3 +1,3 @@
 <x-filament-panels::page>
-    {{-- Page content --}}
+    <livewire:transactions />
 </x-filament-panels::page>
