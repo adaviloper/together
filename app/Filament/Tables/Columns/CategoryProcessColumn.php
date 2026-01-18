@@ -21,7 +21,7 @@ class CategoryProcessColumn extends Column
 
         $actual = $this->record->transactions->sum('debit');
         $actual += $this->record->transactions->sum('credit');
-        $percent = floor(($actual / $expected) * 100);
+        $percent = floor(($actual / $expected) * 10000);
 
 
         return ($percent / 100) . '%';

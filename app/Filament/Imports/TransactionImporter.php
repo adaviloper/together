@@ -2,15 +2,12 @@
 
 namespace App\Filament\Imports;
 
-use App\Models\Category;
 use App\Models\ImportMapping;
-use App\Models\Subcategory;
 use App\Models\Transaction;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Number;
 
 class TransactionImporter extends Importer
@@ -23,51 +20,73 @@ class TransactionImporter extends Importer
             ImportColumn::make('transaction_date')
                 ->label('Transaction Date')
                 ->requiredMapping()
+                ->fillRecordUsing(function (Transaction $record, string $state): void {
+                    $record->transaction_date = Carbon::parse($state)->format('Y-m-d');
+                })
                 ->rules(['required', 'date']),
-            ImportColumn::make('posted_date')
-                ->label('Posted Date')
-                ->requiredMapping()
-                ->rules(['required', 'date']),
+
             ImportColumn::make('card_number')
-                ->label('Card No.')
+                ->label('Card/Account Number')
+                ->guess(['Card No.', 'Account Number'])
                 ->requiredMapping()
                 ->rules(['required', 'max:255']),
+
             ImportColumn::make('description')
                 ->label('Description')
+                ->guess(['Description', 'Transaction Description'])
                 ->requiredMapping()
-                ->fillRecordUsing(function (string $state, array $data, Model $record): void {
+                ->fillRecordUsing(function (string $state, array $data, Transaction $record): void {
                     $mapping = ImportMapping::query()
-                        ->firstOrCreate([
-                            'source' => $data['description'],
-                        ]);
+                        ->firstOrCreate(['source' => $state]);
 
                     $record->subcategory_id = $mapping->subcategory_id;
                     $record->category_id = $mapping->subcategory?->category_id;
                     $record->description = $state;
                 })
                 ->rules(['required', 'max:255']),
+
+            // For credit card format - separate debit/credit columns
             ImportColumn::make('debit')
                 ->label('Debit')
-                ->requiredMapping()
-                ->fillRecordUsing(function (Transaction $transaction, ?float $state): void {
+                ->fillRecordUsing(function (Transaction $record, ?float $state): void {
                     if ($state) {
-                        $transaction->debit = $state * 100;
-                    } else {
-                        $transaction->debit = null;
+                        $record->debit = abs($state) * 100;
                     }
                 })
                 ->rules(['numeric', 'nullable']),
+
             ImportColumn::make('credit')
                 ->label('Credit')
-                ->requiredMapping()
-                ->fillRecordUsing(function (Transaction $transaction, ?float $state): void {
+                ->fillRecordUsing(function (Transaction $record, ?float $state): void {
                     if ($state) {
-                        $transaction->credit = $state * 100;
-                    } else {
-                        $transaction->credit = null;
+                        $record->credit = abs($state) * 100;
                     }
                 })
                 ->rules(['numeric', 'nullable']),
+
+            // For checking account format - single amount column
+            ImportColumn::make('transaction_amount')
+                ->label('Transaction Amount')
+                ->fillRecordUsing(function (Transaction $record, ?float $state, array $data): void {
+                    if ($state === null) {
+                        return;
+                    }
+
+                    $type = strtolower($data['transaction_type'] ?? '');
+
+                    if ($type === 'debit' || $state < 0) {
+                        $record->debit = abs($state) * 100;
+                    } else {
+                        $record->credit = abs($state) * 100;
+                    }
+                })
+                ->rules(['numeric', 'nullable']),
+
+            // Capture transaction type for logic but don't store it
+            ImportColumn::make('transaction_type')
+                ->label('Transaction Type')
+                ->fillRecordUsing(fn () => null)
+                ->rules(['nullable']),
         ];
     }
 

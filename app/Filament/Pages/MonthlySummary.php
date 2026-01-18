@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\App\Pages;
+namespace App\Filament\Pages;
 
-use App\Filament\App\Widgets\MonthlyCategorySummary;
-use App\Filament\App\Widgets\MonthlyOverview;
+use App\Filament\Widgets\MonthlyCategorySummary;
+use App\Filament\Widgets\MonthlyOverview;
 use App\Filament\Resources\Categories\Widgets\MonthlyCategoryPie;
 use Carbon\Carbon;
 use Filament\Actions\Action;
@@ -16,9 +16,9 @@ class MonthlySummary extends Page
 {
     /* protected static ?string $navigationLabel = 'Monthly Summary'; */
 
-    protected static ?string $slug = '/';
+    protected static ?string $slug = 'monthly-review';
 
-    protected string $view = 'filament.pages.dashboard';
+    protected string $view = 'filament.app.pages.january';
 
     #[Url]
     public ?int $year = null;

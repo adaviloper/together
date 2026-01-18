@@ -10,10 +10,10 @@ class ActualTotalSum extends Summarizer
 {
     public function getState(): int
     {
-        // Sum all transactions' debit for categories in the query
-        return Transaction::query()
+        return (int) Transaction::query()
             ->whereIn('category_id', $this->getQuery()->select('id'))
-            ->sum('debit');
+            ->selectRaw('SUM(CASE WHEN debit IS NOT NULL THEN debit ELSE COALESCE(credit, 0) END) as total')
+            ->value('total');
     }
 
     public function formatState(mixed $state): string

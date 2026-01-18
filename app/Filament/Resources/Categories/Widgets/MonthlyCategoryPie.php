@@ -31,11 +31,17 @@ class MonthlyCategoryPie extends ChartWidget
             ->whereIn('user_id', $userIds)
             ->where('transaction_date', '>=', $start)
             ->where('transaction_date', '<=', $end)
-            ->select(['subcategory_id', 'debit'])
+            ->select(['subcategory_id', 'debit', 'credit'])
             ->with('subcategory.category');
         $transactions = $query->get()
             ->groupBy('subcategory.category.name')
-            ->map->sum('debit');
+            ->map->sum(function (Transaction $transaction) {
+                if (!$transaction->debit) {
+                    return $transaction->credit;
+                }
+
+                return $transaction->debit;
+            });
         $transactions->put('Uncategorized', $transactions->get(''));
         $transactions->forget('');
         /* dd([ */

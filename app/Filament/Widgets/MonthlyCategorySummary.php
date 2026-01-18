@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Filament\App\Widgets;
+namespace App\Filament\Widgets;
 
 use App\Models\Category;
 use App\Models\Subcategory;
+use App\Models\Transaction;
 use Carbon\Carbon;
 use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
@@ -47,13 +48,25 @@ class MonthlyCategorySummary extends TableWidget
                     ->money(divideBy: 100),
                 TextColumn::make('actual')
                     ->state(function ($record) use ($category) {
-                        return $record->transactions->sum('debit');
+                        return $record->transactions->sum(function (Transaction $transaction) {
+                            if (!$transaction->debit) {
+                                return $transaction->credit;
+                            }
+
+                            return $transaction->debit;
+                        });
                     })
                 ->money(divideBy: 100),
                 TextColumn::make('process')
                     ->state(function ($record) use ($category) {
                         $expected = $record->monthly_budgeted;
-                        $actual = $record->transactions->sum('debit');
+                        $actual = $record->transactions->sum(function (Transaction $transaction) {
+                            if (!$transaction->debit) {
+                                return $transaction->credit;
+                            }
+
+                            return $transaction->debit;
+                        });
                         return floor(($actual / $expected) * 100) . '%';
                     }),
             ])

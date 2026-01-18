@@ -67,7 +67,7 @@ class TransactionTableSeeder extends Seeder
             if ($category === 'Income' && $year === 2026 && $month && 1) {
                 $this->command->info("Adding transaction for [category: {$category}] {$subcategory}");
             }
-            $method = rand(0, 1000) < 75 ? 'credit' : 'debit';
+            $method = $this->getMethod($category);
 
             try {
                 Transaction::factory()
@@ -83,5 +83,13 @@ class TransactionTableSeeder extends Seeder
                 dd($th, __METHOD__ . ':' . __LINE__);
             }
         }
+    }
+
+    private function getMethod(string $category): string
+    {
+        if ($category === 'Income') {
+            return 'credit';
+        }
+        return rand(0, 1000) < 75 ? 'credit' : 'debit';
     }
 }

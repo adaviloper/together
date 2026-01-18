@@ -17,7 +17,6 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->date('transaction_date');
-            $table->date('posted_date');
             $table->string('card_number');
             $table->string('description');
             $table->foreignIdFor(Category::class)->nullable();
