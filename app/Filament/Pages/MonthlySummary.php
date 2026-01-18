@@ -102,12 +102,27 @@ class MonthlySummary extends Page
                 'year' => $this->year,
                 'categoryName' => 'Income',
             ]),
+            MonthlyCategoryPie::make([
+                'month' => $this->month,
+                'year' => $this->year,
+                'categoryName' => 'Income',
+            ]),
             MonthlyCategorySummary::make([
                 'month' => $this->month,
                 'year' => $this->year,
                 'categoryName' => 'Expense',
             ]),
+            MonthlyCategoryPie::make([
+                'month' => $this->month,
+                'year' => $this->year,
+                'categoryName' => 'Expense',
+            ]),
             MonthlyCategorySummary::make([
+                'month' => $this->month,
+                'year' => $this->year,
+                'categoryName' => 'Bill',
+            ]),
+            MonthlyCategoryPie::make([
                 'month' => $this->month,
                 'year' => $this->year,
                 'categoryName' => 'Bill',

@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources\Categories\Widgets;
 
+use App\Models\Category;
+use App\Models\Subcategory;
 use App\Models\Transaction;
 use App\Models\User;
-use Filament\Support\Colors\Color;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Database\Query\Builder;
-use NumberFormatter;
 
 class MonthlyCategoryPie extends ChartWidget
 {
@@ -16,6 +15,8 @@ class MonthlyCategoryPie extends ChartWidget
     public ?int $month = null;
 
     public ?int $year = null;
+
+    public ?string $categoryName = null;
 
     protected function getData(): array
     {
@@ -26,13 +27,24 @@ class MonthlyCategoryPie extends ChartWidget
         $userIds = User::query()->where([
             'organization_id' => auth()->user()->organization_id,
         ])->get()->pluck('id');
-        /** @var Builder $query */
+
+        if ($this->categoryName === null) {
+            return $this->getCategoryLevelData($userIds, $start, $end);
+        }
+
+        return $this->getSubcategoryLevelData($userIds, $start, $end);
+    }
+
+    protected function getCategoryLevelData($userIds, $start, $end): array
+    {
+        /** @var \Illuminate\Database\Eloquent\Builder $query */
         $query = Transaction::query()
             ->whereIn('user_id', $userIds)
             ->where('transaction_date', '>=', $start)
             ->where('transaction_date', '<=', $end)
             ->select(['subcategory_id', 'debit', 'credit'])
             ->with('subcategory.category');
+
         $transactions = $query->get()
             ->groupBy('subcategory.category.name')
             ->map->sum(function (Transaction $transaction) {
@@ -42,34 +54,82 @@ class MonthlyCategoryPie extends ChartWidget
 
                 return $transaction->debit;
             });
+
         $transactions->put('Uncategorized', $transactions->get(''));
         $transactions->forget('');
-        /* dd([ */
-        /*     'query' => $query->toRawSql(), */
-        /*     'start' => $start, */
-        /*     'end' => $end, */
-        /*     'keys' => $transactions->keys()->toArray(), */
-        /*     'values' => $transactions->values()->toArray(), */
-        /* ], __METHOD__ . ':' . __LINE__); */
 
         return [
             'labels' => $transactions->keys()->toArray(),
             'datasets' => [
                 [
-                    'label' => 'Where is my money going?',
+                    'label' => 'Spending by Category',
                     'data' => $transactions->values()->toArray(),
-                    'backgroundColor' => [
-                        Color::Red["500"],
-                        Color::Yellow["500"],
-                        Color::Green["500"],
-                        Color::Blue["500"],
-                        Color::Stone["500"],
-                        Color::Gray["500"],
-                        Color::Zinc["500"],
-                    ],
+                    'backgroundColor' => $this->getBackgroundColors(),
                     'hoverOffset' => 4,
                 ],
             ],
+        ];
+    }
+
+    protected function getSubcategoryLevelData($userIds, $start, $end): array
+    {
+        $category = Category::query()->where('name', $this->categoryName)->first();
+
+        if ($category === null) {
+            return [
+                'labels' => [],
+                'datasets' => [],
+            ];
+        }
+
+        $subcategoryIds = Subcategory::query()
+            ->where('category_id', $category->id)
+            ->pluck('id');
+
+        /** @var \Illuminate\Database\Eloquent\Builder $query */
+        $query = Transaction::query()
+            ->whereIn('user_id', $userIds)
+            ->whereIn('subcategory_id', $subcategoryIds)
+            ->where('transaction_date', '>=', $start)
+            ->where('transaction_date', '<=', $end)
+            ->select(['subcategory_id', 'debit', 'credit'])
+            ->with('subcategory');
+
+        $transactions = $query->get()
+            ->groupBy('subcategory.name')
+            ->map->sum(function (Transaction $transaction) {
+                if (!$transaction->debit) {
+                    return $transaction->credit;
+                }
+
+                return $transaction->debit;
+            });
+
+        $transactions->put('Uncategorized', $transactions->get(''));
+        $transactions->forget('');
+
+        return [
+            'labels' => $transactions->keys()->toArray(),
+            'datasets' => [
+                [
+                    'label' => $this->categoryName . ' Breakdown',
+                    'data' => $transactions->values()->toArray(),
+                    'backgroundColor' => $this->getBackgroundColors(),
+                    'hoverOffset' => 4,
+                ],
+            ],
+        ];
+    }
+
+    protected function getBackgroundColors(): array
+    {
+        return [
+            config('colors.danger.500'),
+            config('colors.warning.500'),
+            config('colors.success.500'),
+            config('colors.info.500'),
+            config('colors.primary.500'),
+            config('colors.gray.500'),
         ];
     }
 
