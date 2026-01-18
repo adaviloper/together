@@ -41,21 +41,13 @@ class MonthlySummary extends Page
     {
         return [
             Action::make('selectMonth')
-                ->label($this->getMonthLabel())
+                ->label($this->getMonthLabel() . ' ' . $this->year)
                 ->schema([
                     Select::make('month')
                         ->label('Select Month')
                         ->options($this->getMonthOptions())
                         ->default($this->month)
                         ->required(),
-                ])
-                ->action(fn (array $data) => $this->redirect(static::getUrl([
-                    'month' => $data['month'],
-                    'year' => $this->year,
-                ]))),
-            Action::make('selectYear')
-                ->label('Year: ' . $this->year)
-                ->schema([
                     Select::make('year')
                         ->label('Select Year')
                         ->options($this->getYearOptions())
@@ -63,7 +55,7 @@ class MonthlySummary extends Page
                         ->required(),
                 ])
                 ->action(fn (array $data) => $this->redirect(static::getUrl([
-                    'month' => $this->month,
+                    'month' => $data['month'],
                     'year' => $data['year'],
                 ]))),
         ];
