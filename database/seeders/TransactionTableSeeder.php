@@ -32,45 +32,56 @@ class TransactionTableSeeder extends Seeder
      */
     public function run(): void
     {
-        for ($month = 1; $month <= 12; $month++) {
-            try {
-                $this->generateTransaction('Income', $this->user1, $month, 2);
-                $this->generateTransaction('Income', $this->user2, $month, 2);
+        /* $year = 2025; */
+        /* $month = 12; */
+        for ($year = 2022; $year <= now()->year + 1; $year++) {
+            for ($month = 1; $month <= 12; $month++) {
+                try {
+                    $this->generateTransaction('Income', $this->user1, $year, $month, 2);
+                    $this->generateTransaction('Income', $this->user2, $year, $month, 2);
 
-                $this->generateTransaction('Bill', $this->user1, $month, 12);
-                $this->generateTransaction('Bill', $this->user2, $month, 12);
+                    $this->generateTransaction('Bill', $this->user1, $year, $month, 12);
+                    $this->generateTransaction('Bill', $this->user2, $year, $month, 12);
 
-                $this->generateTransaction('Expense', $this->user1, $month, 36);
-                $this->generateTransaction('Expense', $this->user2, $month, 36);
+                    $this->generateTransaction('Expense', $this->user1, $year, $month, 36);
+                    $this->generateTransaction('Expense', $this->user2, $year, $month, 36);
 
-                $this->generateTransaction('Saving Goal', $this->user1, $month, 2);
-                $this->generateTransaction('Saving Goal', $this->user2, $month, 2);
-
-                $this->generateTransaction('Debt', $this->user1, $month, 2);
-                $this->generateTransaction('Debt', $this->user2, $month, 2);
-            } catch (\Throwable $th) {
-                dd($th, __METHOD__ . ':' . __LINE__);
+                    /* $this->generateTransaction('Saving Goal', $this->user1, $year, $month, 2); */
+                    /* $this->generateTransaction('Saving Goal', $this->user2, $year, $month, 2); */
+                    /**/
+                    /* $this->generateTransaction('Debt', $this->user1, $year, $month, 2); */
+                    /* $this->generateTransaction('Debt', $this->user2, $year, $month, 2); */
+                } catch (\Throwable $th) {
+                    dd($th, __METHOD__ . ':' . __LINE__);
+                }
             }
         }
     }
 
-    public function generateTransaction(string $category, User $user, int $month, int $count = 1): void
+    public function generateTransaction(string $category, User $user, int $year, int $month, int $count = 1): void
     {
-        $subcategory = $this->categories[$category]->subcategories->shuffle()->first();
-        $method = rand(0, 1000) < 75 ? 'credit' : 'debit';
+        $subcategories = $this->categories[$category]->subcategories;
 
-        try {
-            $transaction = Transaction::factory()
-                ->{$method}()
-                ->create([
-                'category_id' => $subcategory?->category_id,
-                'subcategory_id' => $subcategory?->id,
-                'user_id' => $user->id,
-                'transaction_date' => now()->year(2025)->month($month)->format('Y-m-d'),
-                'posted_date' => now()->year(2025)->month($month)->format('Y-m-d'),
-            ]);
-        } catch (\Throwable $th) {
-            dd($th, __METHOD__ . ':' . __LINE__);
+        for ($i = 0; $i < $count; $i++) {
+            $subcategory = $subcategories->random();
+            if ($category === 'Income' && $year === 2026 && $month && 1) {
+                $this->command->info("Adding transaction for [category: {$category}] {$subcategory}");
+            }
+            $method = rand(0, 1000) < 75 ? 'credit' : 'debit';
+
+            try {
+                Transaction::factory()
+                    ->{$method}()
+                    ->create([
+                        'category_id' => $subcategory?->category_id,
+                        'subcategory_id' => $subcategory?->id,
+                        'user_id' => $user->id,
+                        'transaction_date' => now()->year($year)->month($month)->format('Y-m-d'),
+                        'posted_date' => now()->year($year)->month($month)->format('Y-m-d'),
+                    ]);
+            } catch (\Throwable $th) {
+                dd($th, __METHOD__ . ':' . __LINE__);
+            }
         }
     }
 }

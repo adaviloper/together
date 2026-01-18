@@ -12,6 +12,10 @@ class CategoryInfolist
         return $schema
             ->components([
                 TextEntry::make('name'),
+                TextEntry::make('total_monthly_budgeted')
+                    ->label('Monthly Budgeted')
+                    ->money(divideBy: 100)
+                    ->state(fn ($record) => $record->subcategories->sum('monthly_budgeted')),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),

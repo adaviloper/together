@@ -13,11 +13,15 @@ class MonthlyCategoryPie extends ChartWidget
 {
     protected ?string $heading = "Where's my money going?";
 
-    public int $month;
+    public ?int $month = null;
+
+    public ?int $year = null;
 
     protected function getData(): array
     {
-        $start = now()->subYear()->month($this->month)->startOfMonth();
+        $year = $this->year ?? now()->year;
+        $month = $this->month ?? now()->month;
+        $start = now()->year($year)->month($month)->startOfMonth();
         $end = $start->clone()->endOfMonth();
         $userIds = User::query()->where([
             'organization_id' => auth()->user()->organization_id,

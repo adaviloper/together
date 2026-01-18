@@ -15,11 +15,13 @@ class CategoriesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->withSum('subcategories', 'monthly_budgeted'))
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('monthly_budgeted')
-                    ->sum('subcategories', 'monthly_budgeted')
+                TextColumn::make('subcategories_sum_monthly_budgeted')
+                    ->label('Monthly Budgeted')
+                    ->money('USD', 100)
                     ->default(0),
                 TextColumn::make('subcategories_count')
                     ->counts('subcategories'),
