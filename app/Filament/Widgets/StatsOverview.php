@@ -10,8 +10,6 @@ class StatsOverview extends StatsOverviewWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Income', 123),
-            Stat::make('Bills', 123),
         ];
     }
 }
