@@ -1,0 +1,31 @@
+@import 'tailwindcss';
+
+/* Include Filament's base styles */
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+/* Scan Livewire views for Tailwind classes */
+@source '../../../views/livewire/**/*.blade.php';
+@source '../../../views/filament/**/*.blade.php';
+@source '../../../../app/Livewire/**/*.php';
+@source '../../../../app/Filament/**/*.php';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Safelist: Dynamic classes used in breakdown-table.blade.php
+ * These are referenced in PHP variables and may not be detected by Tailwind's scanner.
+ *
+ * bg-white dark:bg-gray-900
+ * bg-blue-50 dark:bg-blue-950
+ * bg-amber-50 dark:bg-amber-950
+ * bg-gray-100 dark:bg-gray-800
+ * bg-purple-50 dark:bg-purple-950
+ * bg-purple-100 dark:bg-purple-900
+ * bg-red-100 dark:bg-red-900
+ * bg-green-50 dark:bg-green-950
+ * bg-green-100 dark:bg-green-900
+ * bg-yellow-100 dark:bg-yellow-900
+ * bg-indigo-100 dark:bg-indigo-900
+ * bg-pink-100 dark:bg-pink-900
+ * bg-teal-100 dark:bg-teal-900
+ */

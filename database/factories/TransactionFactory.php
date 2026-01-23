@@ -20,33 +20,12 @@ class TransactionFactory extends Factory
     public function definition(): array
     {
         return [
-            'card_number' => $this->faker->numerify('****'),
-            'category_id' => Category::factory(),
-            'credit' => $this->faker->numberBetween(1000, 99999),
-            'debit' => $this->faker->numberBetween(1000, 99999),
-            'description' => $this->faker->word(),
-            'posted_date' => $this->faker->date('Y-m-d'),
-            'subcategory_id' => Subcategory::factory(),
             'transaction_date' => $this->faker->date('Y-m-d'),
+            'amount' => $this->faker->numberBetween(1000, 99999),
+            'description' => $this->faker->words(2),
+            'subcategory_id' => Subcategory::factory(),
+            'category_id' => Category::factory(),
             'user_id' => fn () => User::factory()->create()->id,
         ];
-    }
-
-    public function debit(): Factory
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'credit' => null,
-            ];
-        });
-    }
-
-    public function credit(): Factory
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'debit' => null,
-            ];
-        });
     }
 }

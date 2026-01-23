@@ -26,7 +26,7 @@ class Transactions extends Component implements HasActions, HasSchemas, HasTable
         return $table
             ->query(fn (): Builder => Transaction::query())
             ->columns([
-                //
+                 //
             ])
             ->filters([
                 //

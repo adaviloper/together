@@ -1,3 +1,3 @@
 <x-filament-panels::page>
-    <livewire:transactions />
+    <livewire:breakdown-table />
 </x-filament-panels::page>

@@ -64,20 +64,15 @@ class TransactionTableSeeder extends Seeder
 
         for ($i = 0; $i < $count; $i++) {
             $subcategory = $subcategories->random();
-            if ($category === 'Income' && $year === 2026 && $month && 1) {
-                $this->command->info("Adding transaction for [category: {$category}] {$subcategory}");
-            }
             $method = $this->getMethod($category);
 
             try {
                 Transaction::factory()
-                    ->{$method}()
                     ->create([
                         'category_id' => $subcategory?->category_id,
                         'subcategory_id' => $subcategory?->id,
                         'user_id' => $user->id,
                         'transaction_date' => now()->year($year)->month($month)->format('Y-m-d'),
-                        'posted_date' => now()->year($year)->month($month)->format('Y-m-d'),
                     ]);
             } catch (\Throwable $th) {
                 dd($th, __METHOD__ . ':' . __LINE__);

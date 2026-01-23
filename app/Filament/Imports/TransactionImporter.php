@@ -65,7 +65,7 @@ class TransactionImporter extends Importer
                 ->rules(['numeric', 'nullable']),
 
             // For checking account format - single amount column
-            ImportColumn::make('transaction_amount')
+            ImportColumn::make('amount')
                 ->label('Transaction Amount')
                 ->fillRecordUsing(function (Transaction $record, ?float $state, array $data): void {
                     if ($state === null) {
