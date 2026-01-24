@@ -3,6 +3,6 @@
 set -e
 
 # Start Nginx in the foreground
-nginx
+# nginx
 
 exec "$@"
