@@ -16,7 +16,7 @@ services:
       context: .
       dockerfile: docker/nginx/Dockerfile
     ports:
-      - "8080:80"
+      - "2724:80"
     volumes:
       - .:/var/www/html
     depends_on:
