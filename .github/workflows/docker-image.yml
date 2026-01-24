@@ -1,46 +1,86 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-# GitHub recommends pinning actions to a commit SHA.
-# To get a newer version, you will need to update the SHA.
-# You can also reference a tag or branch, but the action may change without warning.
-
 name: Publish Docker image
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - main
 
 jobs:
-  push_to_registry:
-    name: Push Docker image to Docker Hub
+  bump_release_and_publish:
+    name: Bump Release & Push Docker Image
     runs-on: ubuntu-latest
     permissions:
+      contents: write
       packages: write
-      contents: read
-      attestations: write
       id-token: write
+      attestations: write
+
     steps:
-      - name: Check out the repo
+      - name: Checkout repo
         uses: actions/checkout@v5
 
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Get latest release tag
+        id: get_latest
+        run: |
+          latest=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)
+          if [ -z "$latest" ]; then
+            latest="v0.0.0"
+          fi
+          echo "Latest tag: $latest"
+          echo "latest=$latest" >> $GITHUB_OUTPUT
+
+      - name: Increment patch version safely
+        id: bump_version
+        run: |
+          latest=${{ steps.get_latest.outputs.latest }}
+          version=${latest#v}  # Remove leading 'v'
+          IFS='.' read -r major minor patch <<< "$version"
+          patch=$((patch + 1))
+          new_version="v$major.$minor.$patch"
+
+          # Ensure the new version doesn't exist
+          while git rev-parse "$new_version" >/dev/null 2>&1; do
+            patch=$((patch + 1))
+            new_version="v$major.$minor.$patch"
+          done
+
+          echo "New version: $new_version"
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
+
+      - name: Create new Git tag
+        run: |
+          git tag ${{ steps.bump_version.outputs.new_version }}
+          git push origin ${{ steps.bump_version.outputs.new_version }}
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.bump_version.outputs.new_version }}
+          name: ${{ steps.bump_version.outputs.new_version }}
+          draft: false
+          prerelease: false
+
       - name: Log in to Docker Hub
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        uses: docker/metadata-action@v5
         with:
           images: adaviloper/together
+          tags: ${{ steps.bump_version.outputs.new_version }}
 
       - name: Build and push Docker image
         id: push
-        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+        uses: docker/build-push-action@v4
         with:
           context: .
           file: ./docker/php/Dockerfile.prod
@@ -58,3 +98,4 @@ jobs:
           subject-name: index.docker.io/adaviloper/together
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
+
