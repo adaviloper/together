@@ -1,25 +1,22 @@
-# ----------------------
-# PHP-FPM Production Image
-# ----------------------
+# Base PHP-FPM image
 FROM php:8.4-fpm
 
-# Arguments for UID/GID (optional, mostly for file permissions)
+# Arguments for UID/GID (optional)
 ARG HOST_UID=1000
 ARG HOST_GID=1000
+ARG COMPOSER_DEV=false
 
-# Install system dependencies and PHP extensions
+# Install system dependencies & PHP extensions
 RUN apt-get update && apt-get install -y \
     libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libzip-dev \
     zip unzip git curl libicu-dev ca-certificates gnupg \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql mbstring zip exif pcntl intl \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && docker-php-ext-install gd pdo pdo_mysql mbstring zip exif pcntl intl
 
-# Install Node.js (optional, only if you need asset building)
+# Install Node.js (optional for asset builds)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
-    && npm install -g npm@latest \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && npm install -g npm@latest
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -31,23 +28,28 @@ RUN groupadd -g ${HOST_GID} appgroup \
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy all Laravel files into container
+# Copy Laravel code into container
 COPY . /var/www/html
 
-# Ensure Laravel writable directories
+# Ensure writable directories exist
 RUN mkdir -p storage bootstrap/cache \
     && chown -R appuser:appgroup storage bootstrap/cache
 
-# Make git repository safe (required by some composer scripts)
+# Mark repository safe for git
 RUN git config --global --add safe.directory /var/www/html
 
-# Install **production dependencies** only
-RUN composer install --no-dev --optimize-autoloader
+# Install production Composer dependencies
+RUN if [ "$COMPOSER_DEV" = "true" ]; then \
+    composer install; \
+else \
+    composer install --no-dev --optimize-autoloader; \
+fi
 
 # Switch to non-root user
 USER appuser
 
-# Expose PHP-FPM port (internal only, Nginx will talk to it)
+# Expose PHP-FPM port
 EXPOSE 9000
 
+# Start PHP-FPM
 CMD ["php-fpm"]
