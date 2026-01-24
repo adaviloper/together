@@ -4,26 +4,24 @@ services:
   php:
     build:
       context: .
-      dockerfile: docker/php/Dockerfile
-      args:
-        HOST_UID: 1000
-        HOST_GID: 1000
-        COMPOSER_DEV: false
-    ports:
-      - "9000:9000"  # optional if you want to expose PHP-FPM
-    # no volume, code baked in
+      dockerfile: docker/php/Dockerfile.prod
+    container_name: together-php
+    expose:
+      - "9000"
 
   nginx:
-    image: nginx:alpine
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile.prod
+    container_name: together-nginx
     ports:
-      - "2724:80"
-    volumes:
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - "2724:80" # host → container
     depends_on:
       - php
 
   db:
     image: bitnami/mariadb:latest
+    container_name: together-db
     environment:
       MARIADB_ROOT_PASSWORD: root
       MARIADB_DATABASE: together

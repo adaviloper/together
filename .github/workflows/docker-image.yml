@@ -43,14 +43,14 @@ jobs:
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         with:
           context: .
-          file: ./docker/php/Dockerfile
+          file: ./docker/php/Dockerfile.prod
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             HOST_UID=1000
             HOST_GID=1000
-            COMPOSER_DEV=${{ env.COMPOSER_DEV }}
+            COMPOSER_DEV=false
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v3

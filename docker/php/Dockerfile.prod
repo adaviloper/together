@@ -1,12 +1,13 @@
 # ----------------------
-# PHP-FPM Development Image
+# PHP-FPM Production Image
 # ----------------------
 FROM php:8.4-fpm
 
+# Arguments for UID/GID (optional, mostly for file permissions)
 ARG HOST_UID=1000
 ARG HOST_GID=1000
 
-# Install system dependencies & PHP extensions
+# Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
     libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libzip-dev \
     zip unzip git curl libicu-dev ca-certificates gnupg \
@@ -14,30 +15,39 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install gd pdo pdo_mysql mbstring zip exif pcntl intl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Node.js for Vite / assets
+# Install Node.js (optional, only if you need asset building)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g npm@latest \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Composer
+# Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Create non-root user
 RUN groupadd -g ${HOST_GID} appgroup \
     && useradd -u ${HOST_UID} -g appgroup -m appuser
 
+# Set working directory
 WORKDIR /var/www/html
 
-# Copy entrypoint
-COPY ./docker/docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# Copy all Laravel files into container
+COPY . /var/www/html
 
-# Expose PHP-FPM port for Nginx
-EXPOSE 9000
+# Ensure Laravel writable directories
+RUN mkdir -p storage bootstrap/cache \
+    && chown -R appuser:appgroup storage bootstrap/cache
 
-# Switch to non-root
+# Make git repository safe (required by some composer scripts)
+RUN git config --global --add safe.directory /var/www/html
+
+# Install **production dependencies** only
+RUN composer install --no-dev --optimize-autoloader
+
+# Switch to non-root user
 USER appuser
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+# Expose PHP-FPM port (internal only, Nginx will talk to it)
+EXPOSE 9000
+
 CMD ["php-fpm"]
