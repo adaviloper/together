@@ -1,49 +1,62 @@
+# Base PHP-FPM image
 FROM php:8.4-fpm
 
+# Arguments for host UID/GID (optional)
 ARG HOST_UID=1000
 ARG HOST_GID=1000
+ARG COMPOSER_DEV=true
 
-# System deps + PHP extensions
+# Install system dependencies & PHP extensions
 RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libonig-dev \
-    libzip-dev \
-    libicu-dev \
-    zip \
-    unzip \
-    git \
-    curl \
-    ca-certificates \
+    libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libzip-dev \
+    zip unzip git curl libicu-dev ca-certificates gnupg \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
-        gd pdo pdo_mysql mbstring zip exif pcntl intl \
-    && rm -rf /var/lib/apt/lists/*
+    && docker-php-ext-install gd pdo pdo_mysql mbstring zip exif pcntl intl
 
-# Node (optional, but you had it)
+# Install Node.js (optional for asset builds)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g npm@latest
 
-# Composer
-RUN curl -sS https://getcomposer.org/installer | php -- \
-    --install-dir=/usr/local/bin \
-    --filename=composer
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Non-root user matching host
+# Create non-root user
 RUN groupadd -g ${HOST_GID} appgroup \
     && useradd -u ${HOST_UID} -g appgroup -m appuser
 
+# Set working directory
 WORKDIR /var/www/html
 
-# Laravel writable dirs
+# Copy Laravel application into container
+COPY . /var/www/html
+
+# Ensure Laravel writable directories exist
 RUN mkdir -p storage bootstrap/cache \
-    && chown -R appuser:appgroup /var/www/html
+    && chown -R appuser:appgroup storage bootstrap/cache
 
-# Avoid git safe.directory warnings
-RUN git config --system --add safe.directory /var/www/html
+# Mark repository safe for git
+RUN git config --global --add safe.directory /var/www/html
 
+# Install production Composer dependencies
+RUN if [ "$COMPOSER_DEV" = "true" ]; then \
+    composer install; \
+else \
+    composer install --no-dev --optimize-autoloader; \
+fi
+
+# Copy custom entrypoint (if needed)
+COPY ./docker/docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Switch to non-root user
 USER appuser
 
+# Configure git safe directory (optional)
+RUN git config --global --add safe.directory /var/www/html
+
+# Expose PHP-FPM port
+EXPOSE 80
+
+# ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["php-fpm"]
