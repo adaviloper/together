@@ -2,19 +2,15 @@ version: "3.9"
 
 services:
   app:
-    container_name: together-app
+    container_name: together
     build:
       context: .
       dockerfile: docker/php/Dockerfile
-      args:
-        HOST_UID: ${UID:-1000}
-        HOST_GID: ${GID:-1000}
     ports:
-      - "2724:80" # Expose single port to host
+      - "2724:80" # Expose Laravel externally
     volumes:
       - .:/var/www/html
     environment:
-      # Optional: pass DB credentials here
       DB_HOST: db
       DB_DATABASE: together
       DB_USERNAME: laravel
