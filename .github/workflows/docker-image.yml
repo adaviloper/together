@@ -18,6 +18,14 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Verify tags (optional, but great for debugging)
+        run: |
+          echo "Local tags:"
+          git tag
 
       - name: Set up Git
         run: |
@@ -31,26 +39,18 @@ jobs:
           if [ -z "$latest" ]; then
             latest="v0.0.0"
           fi
-          echo "Latest tag: $latest"
           echo "latest=$latest" >> $GITHUB_OUTPUT
 
-      - name: Increment patch version safely
+      - name: Increment patch version
         id: bump_version
         run: |
-          latest=${{ steps.get_latest.outputs.latest }}
-          version=${latest#v}
+          version=${{ steps.get_latest.outputs.latest }}
+          version=${version#v}
           IFS='.' read -r major minor patch <<< "$version"
 
-          while true; do
-            patch=$((patch + 1))
-            new_version="v$major.$minor.$patch"
+          patch=$((patch + 1))
+          new_version="v$major.$minor.$patch"
 
-            if ! git rev-parse "refs/tags/$new_version" >/dev/null 2>&1; then
-              break
-            fi
-          done
-
-          echo "New version: $new_version"
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
 
       - name: Create new Git tag
