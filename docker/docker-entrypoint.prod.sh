@@ -21,10 +21,12 @@ if [ -f /var/www/html/artisan ]; then
     # 4️⃣ Run migrations if DB is available
     php /var/www/html/artisan migrate --force || true
 
-
     # Fix permissions so Nginx & PHP-FPM can read/write
     chown -R www-data:www-data /var/www/html
     chmod -R 755 /var/www/html
+
+    npm install
+    npm run build
 fi
 
 # Start supervisord (runs PHP-FPM + Nginx)
