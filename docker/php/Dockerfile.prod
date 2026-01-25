@@ -1,6 +1,29 @@
+# =========================
+# Stage 1: Node + build frontend
+# =========================
+FROM node:20-alpine AS frontend-build
+
+WORKDIR /app
+
+# Copy package files for caching
+COPY package*.json ./
+COPY vite.config.ts ./
+
+# Install Node deps
+RUN npm ci
+
+# Copy full frontend code
+COPY . .
+
+# Build frontend assets
+RUN npm run build
+
+# =========================
+# Stage 2: PHP + production
+# =========================
 FROM php:8.4-fpm
 
-# Install system deps + Nginx + Supervisor + extras
+# Install system deps + Nginx + Supervisor + PHP extensions
 RUN apt-get update && apt-get install -y \
     nginx \
     supervisor \
@@ -12,51 +35,40 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install gd pdo pdo_mysql mbstring zip exif pcntl intl \
     && rm -rf /var/lib/apt/lists/*
 
-# Add this before WORKDIR or after system deps
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && node -v \
-    && npm -v
-
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php \
-    -- --install-dir=/usr/local/bin --filename=composer
-
 WORKDIR /var/www/html
 
-# Copy package files first for caching
-COPY package*.json ./
-COPY vite.config.ts ./
-COPY .env.example ./
-RUN npm ci
-
-# Copy the rest of the app
+# Copy PHP application files
 COPY . .
 
-RUN npm run build
+# Copy frontend assets from the build stage
+COPY --from=frontend-build /app/public/build ./public/build
 
+# Copy .env.example (entrypoint will generate .env if missing)
+COPY .env.example ./
+
+# Copy entrypoint
 COPY docker/docker-entrypoint.prod.sh /usr/local/bin/docker-entrypoint.prod.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.prod.sh
 
-# Safe git directory for composer
+# Copy Nginx & Supervisor configs
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Safe git dir for composer
 RUN git config --global --add safe.directory /var/www/html
 
-
-# Install prod dependencies
+# Install PHP prod dependencies
 RUN composer install --no-dev --optimize-autoloader --no-scripts \
-    && mkdir -p storage bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache database/database.sqlite \
-    && chmod -R 775 storage bootstrap/cache database/database.sqlite
+    && mkdir -p storage bootstrap/cache database \
+    && chown -R www-data:www-data storage bootstrap/cache database \
+    && chmod -R 775 storage bootstrap/cache database
 
-# Remove default nginx site
+# Remove default Nginx site
 RUN rm -f /etc/nginx/sites-enabled/default \
     && rm -f /etc/nginx/sites-available/default
 
-# Copy your custom nginx config
-COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-
-# Copy supervisord config
-COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Ensure Nginx logs exist and are writable
+RUN mkdir -p /var/log/nginx && chown -R www-data:www-data /var/log/nginx
 
 EXPOSE 80
 
