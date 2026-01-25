@@ -28,15 +28,19 @@ WORKDIR /var/www/html
 COPY package*.json ./
 COPY vite.config.ts ./
 COPY .env.example ./
+RUN npm ci
 
 # Copy the rest of the app
 COPY . .
+
+RUN npm run build
 
 COPY docker/docker-entrypoint.prod.sh /usr/local/bin/docker-entrypoint.prod.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.prod.sh
 
 # Safe git directory for composer
 RUN git config --global --add safe.directory /var/www/html
+
 
 # Install prod dependencies
 RUN composer install --no-dev --optimize-autoloader --no-scripts \
