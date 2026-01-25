@@ -54,11 +54,6 @@ COPY . .
 COPY .env.example .env
 
 # -------------------------
-# Build frontend assets
-# -------------------------
-RUN npm run build
-
-# -------------------------
 # Copy entrypoint and make executable
 # -------------------------
 COPY docker/docker-entrypoint.prod.sh /usr/local/bin/docker-entrypoint.prod.sh

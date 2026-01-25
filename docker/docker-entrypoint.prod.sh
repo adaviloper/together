@@ -1,30 +1,29 @@
 #!/bin/bash
+set -e
 
-set -u
-set -o pipefail
-
-cd /var/www/html
-
-echo "▶ Entrypoint starting…"
-
-# Ensure .env exists
+# Create .env if missing
 if [ ! -f .env ]; then
-  echo "▶ Creating .env"
-  cp .env.example .env || true
+    cp .env.example .env
 fi
 
-# Generate key if missing
-if ! grep -q '^APP_KEY=' .env || grep -q 'APP_KEY=$' .env; then
-  echo "▶ Generating APP_KEY"
-  php artisan key:generate --force || true
-fi
+# Set folder permissions
+mkdir -p storage bootstrap/cache database
+touch database/database.sqlite
+chown -R www-data:www-data storage bootstrap/cache database
+chmod -R 775 storage bootstrap/cache database
 
-echo "▶ Clearing & caching config"
-php artisan config:clear || true
-php artisan config:cache || true
+# Install PHP dependencies (if needed)
+composer install --no-dev --optimize-autoloader --no-scripts
 
-echo "▶ Running migrations (non-fatal)"
-php artisan migrate --force || true
+# Generate APP_KEY if missing
+php artisan key:generate --force
 
-echo "▶ Starting supervisord"
+# Run migrations
+php artisan migrate --force
+
+# Build frontend assets
+npm ci
+npm run build
+
+# Start supervisord (nginx + php-fpm)
 exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
