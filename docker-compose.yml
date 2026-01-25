@@ -10,6 +10,7 @@ services:
       - "2724:80" # Expose Laravel externally
     volumes:
       - .:/var/www/html
+      - laravel_env:/var/www/html/.env
     environment:
       DB_HOST: db
       DB_DATABASE: together
@@ -32,3 +33,4 @@ services:
 
 volumes:
   db_data:
+  laravel_env:
