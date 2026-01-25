@@ -1,43 +1,41 @@
-# ----------------------
-# PHP-FPM Development Image
-# ----------------------
 FROM php:8.4-fpm
 
-ARG HOST_UID=1000
-ARG HOST_GID=1000
-
-# Install system dependencies & PHP extensions
+# Install system deps + nginx + supervisor + procps (ps)
 RUN apt-get update && apt-get install -y \
-    libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libzip-dev \
-    zip unzip git curl libicu-dev ca-certificates gnupg \
+    nginx \
+    supervisor \
+    procps \
+    libpng-dev libjpeg-dev libfreetype6-dev \
+    libonig-dev libzip-dev libicu-dev \
+    zip unzip git curl \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo pdo_mysql mbstring zip exif pcntl intl \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
-# Node.js for Vite / assets
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g npm@latest \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Create non-root user
-RUN groupadd -g ${HOST_GID} appgroup \
-    && useradd -u ${HOST_UID} -g appgroup -m appuser
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php \
+    -- --install-dir=/usr/local/bin --filename=composer
 
 WORKDIR /var/www/html
 
-# Copy entrypoint
-COPY ./docker/docker-entrypoint.sh /usr/local/bin/
+# Copy app code
+COPY . .
+COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-# Expose PHP-FPM port for Nginx
-EXPOSE 9000
-
-# Switch to non-root
-USER appuser
-
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["php-fpm"]
+
+# ✅ Tell git this directory is safe BEFORE composer runs
+RUN git config --global --add safe.directory /var/www/html
+
+# Install prod dependencies
+RUN composer install --no-dev --optimize-autoloader --no-scripts \
+    && mkdir -p storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
+# Copy configs
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+EXPOSE 80
+
+CMD ["/usr/bin/supervisord", "-n"]

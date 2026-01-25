@@ -8,7 +8,6 @@ ARG COMPOSER_DEV=false
 
 # Install system dependencies & PHP extensions
 RUN apt-get update && apt-get install -y \
-    ps ss \
     libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libzip-dev \
     zip unzip git curl libicu-dev ca-certificates gnupg \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
