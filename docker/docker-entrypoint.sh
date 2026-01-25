@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 # Only run Laravel runtime setup if artisan exists
@@ -14,10 +13,5 @@ if [ -f /var/www/html/artisan ]; then
     php /var/www/html/artisan migrate --force || true
 fi
 
-# Start supervisord
+# Start supervisord (which runs PHP-FPM + Nginx)
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
-# Start PHP-FPM in background
-php-fpm &
-
-# Start Nginx in foreground
-nginx -g "daemon off;"

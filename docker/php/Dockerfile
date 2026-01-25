@@ -1,6 +1,6 @@
 FROM php:8.4-fpm
 
-# Install system deps + nginx + supervisor + procps (ps)
+# Install system deps + nginx + supervisor + procps
 RUN apt-get update && apt-get install -y \
     nginx \
     supervisor \
@@ -22,7 +22,6 @@ WORKDIR /var/www/html
 COPY . .
 COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-ENTRYPOINT ["docker-entrypoint.sh"]
 
 # ✅ Tell git this directory is safe BEFORE composer runs
 RUN git config --global --add safe.directory /var/www/html
@@ -38,4 +37,5 @@ COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 EXPOSE 80
 
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["/usr/bin/supervisord", "-n"]
