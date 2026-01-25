@@ -1,16 +1,14 @@
-version: "3.9"
-
 services:
   app:
     container_name: together
     build:
       context: .
-      dockerfile: docker/php/Dockerfile
+      dockerfile: docker/php/Dockerfile.prod
     ports:
       - "2724:80" # Expose Laravel externally
     volumes:
       - .:/var/www/html
-      - laravel_env:/var/www/html/.env
+      # - laravel_env:/var/www/html/.env
     environment:
       DB_HOST: together_prod_db
       DB_DATABASE: together

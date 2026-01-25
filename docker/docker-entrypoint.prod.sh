@@ -1,33 +1,30 @@
 #!/bin/bash
-set -e
 
-# Only run Laravel runtime setup if artisan exists
-if [ -f /var/www/html/artisan ]; then
-    echo "Running Laravel setup..."
+set -u
+set -o pipefail
 
-    # 1️⃣ Ensure .env exists
-    if [ ! -f /var/www/html/.env ]; then
-        echo ".env not found, copying from .env.example"
-        cp /var/www/html/.env.example /var/www/html/.env
-    fi
+cd /var/www/html
 
-    # 2️⃣ Generate APP_KEY if not already set
-    php /var/www/html/artisan key:generate --force
+echo "▶ Entrypoint starting…"
 
-    # 3️⃣ Clear & cache config
-    php /var/www/html/artisan config:clear
-    php /var/www/html/artisan config:cache
-
-    # 4️⃣ Run migrations if DB is available
-    php /var/www/html/artisan migrate --force || true
-
-    # Fix permissions so Nginx & PHP-FPM can read/write
-    chown -R www-data:www-data /var/www/html
-    chmod -R 755 /var/www/html
-
-    npm install
-    npm run build
+# Ensure .env exists
+if [ ! -f .env ]; then
+  echo "▶ Creating .env"
+  cp .env.example .env || true
 fi
 
-# Start supervisord (runs PHP-FPM + Nginx)
-exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+# Generate key if missing
+if ! grep -q '^APP_KEY=' .env || grep -q 'APP_KEY=$' .env; then
+  echo "▶ Generating APP_KEY"
+  php artisan key:generate --force || true
+fi
+
+echo "▶ Clearing & caching config"
+php artisan config:clear || true
+php artisan config:cache || true
+
+echo "▶ Running migrations (non-fatal)"
+php artisan migrate --force || true
+
+echo "▶ Starting supervisord"
+exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
