@@ -26,7 +26,7 @@ WORKDIR /var/www/html
 
 # Copy package files first for caching
 COPY package*.json ./
-COPY vite.config.js ./
+COPY vite.config.ts ./
 
 # Install node dependencies
 RUN npm install
