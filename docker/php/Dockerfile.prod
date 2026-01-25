@@ -41,6 +41,7 @@ RUN git config --global --add safe.directory /var/www/html
 # Install prod dependencies
 RUN composer install --no-dev --optimize-autoloader --no-scripts \
     && mkdir -p storage bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
 # Remove default nginx site
