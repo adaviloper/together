@@ -2,7 +2,8 @@
 
 set -e
 
-# Start Nginx in the foreground
-# nginx
+# Start PHP-FPM in background
+php-fpm &
 
-exec "$@"
+# Start Nginx in foreground
+nginx -g "daemon off;"

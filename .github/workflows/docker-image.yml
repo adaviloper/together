@@ -27,7 +27,7 @@ jobs:
       - name: Get latest release tag
         id: get_latest
         run: |
-          latest=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)
+          latest=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
           if [ -z "$latest" ]; then
             latest="v0.0.0"
           fi
@@ -38,15 +38,16 @@ jobs:
         id: bump_version
         run: |
           latest=${{ steps.get_latest.outputs.latest }}
-          version=${latest#v}  # Remove leading 'v'
+          version=${latest#v}
           IFS='.' read -r major minor patch <<< "$version"
-          patch=$((patch + 1))
-          new_version="v$major.$minor.$patch"
 
-          # Ensure the new version doesn't exist
-          while git rev-parse "$new_version" >/dev/null 2>&1; do
+          while true; do
             patch=$((patch + 1))
             new_version="v$major.$minor.$patch"
+
+            if ! git rev-parse "refs/tags/$new_version" >/dev/null 2>&1; then
+              break
+            fi
           done
 
           echo "New version: $new_version"
