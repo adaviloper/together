@@ -55,6 +55,19 @@ import { Form, Head } from '@inertiajs/vue3';
                 </div>
 
                 <div class="grid gap-2">
+                    <Label for="organization">Organization Name</Label>
+                    <Input
+                        id="organization"
+                        type="text"
+                        required
+                        :tabindex="2"
+                        name="organization"
+                        placeholder="Acme Inc."
+                    />
+                    <InputError :message="errors.organization" />
+                </div>
+
+                <div class="grid gap-2">
                     <Label for="password">Password</Label>
                     <Input
                         id="password"
