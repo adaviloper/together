@@ -1,24 +1,5 @@
 # =========================
-# Stage 1: Build frontend assets
-# =========================
-FROM node:20-alpine AS frontend-builder
-
-WORKDIR /build
-
-COPY package*.json ./
-RUN npm ci
-
-COPY resources/ resources/
-COPY vite.config.ts tsconfig.json ./
-COPY public/ public/
-
-# Provide a stub .env so Vite can resolve env variables
-RUN touch .env
-
-RUN npm run build
-
-# =========================
-# Stage 2: Production PHP image
+# Production Dockerfile
 # =========================
 FROM php:8.4-fpm
 
@@ -35,6 +16,12 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo pdo_mysql mbstring zip exif pcntl intl \
     && rm -rf /var/lib/apt/lists/*
+
+# -------------------------
+# Install Node.js (needed for Wayfinder plugin during Vite build)
+# -------------------------
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
 
 # -------------------------
 # Install Composer
@@ -63,22 +50,29 @@ RUN git config --global --add safe.directory /var/www/html
 RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
 
 # -------------------------
+# Copy package files for npm layer caching
+# -------------------------
+COPY package*.json ./
+RUN npm ci
+
+# -------------------------
 # Copy the rest of the app
 # -------------------------
 COPY . .
+
+# -------------------------
+# Ensure .env exists for Laravel / Wayfinder
+# -------------------------
+COPY .env.example .env
 
 # Re-run composer for post-autoload-dump scripts (package discovery)
 RUN composer dump-autoload --optimize
 
 # -------------------------
-# Copy built frontend assets from builder stage
+# Build frontend assets (requires both PHP and Node for Wayfinder)
 # -------------------------
-COPY --from=frontend-builder /build/public/build/ public/build/
-
-# -------------------------
-# Ensure .env exists for Laravel bootstrapping
-# -------------------------
-COPY .env.example .env
+RUN npm run build \
+    && rm -rf node_modules
 
 # -------------------------
 # Copy entrypoint and make executable

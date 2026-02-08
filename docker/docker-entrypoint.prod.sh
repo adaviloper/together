@@ -12,9 +12,9 @@ if [ -z "$APP_KEY" ] && ! grep -q "^APP_KEY=base64:" .env 2>/dev/null; then
     php artisan key:generate --force
 fi
 
-# Cache Laravel config, routes, and views for performance
+# Cache Laravel config and views for performance
+# Note: route:cache is skipped due to Filament route name conflicts
 php artisan config:cache
-php artisan route:cache
 php artisan view:cache
 
 # Run migrations

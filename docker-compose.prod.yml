@@ -1,9 +1,9 @@
 services:
   app:
     container_name: together
-    build:
-      context: .
-      dockerfile: docker/php/Dockerfile.prod
+    image: together:latest
+    # For ZimaCube, replace with your registry image:
+    # image: ghcr.io/your-user/together:latest
     ports:
       - "2724:80"
     environment:
@@ -44,11 +44,11 @@ services:
       - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      test: ["CMD", "/opt/bitnami/mariadb/bin/mariadb-admin", "ping", "-h", "127.0.0.1", "-u", "root", "-proot"]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 30s
+      retries: 10
+      start_period: 60s
     networks:
       - together
 
