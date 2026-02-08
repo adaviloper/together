@@ -1,10 +1,29 @@
 # =========================
-# Production Dockerfile
+# Stage 1: Build frontend assets
+# =========================
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /build
+
+COPY package*.json ./
+RUN npm ci
+
+COPY resources/ resources/
+COPY vite.config.ts tsconfig.json ./
+COPY public/ public/
+
+# Provide a stub .env so Vite can resolve env variables
+RUN touch .env
+
+RUN npm run build
+
+# =========================
+# Stage 2: Production PHP image
 # =========================
 FROM php:8.4-fpm
 
 # -------------------------
-# Install system deps + Nginx + Supervisor + extras
+# Install system deps + Nginx + Supervisor
 # -------------------------
 RUN apt-get update && apt-get install -y \
     nginx \
@@ -18,14 +37,6 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # -------------------------
-# Install Node.js (for frontend build)
-# -------------------------
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && node -v \
-    && npm -v
-
-# -------------------------
 # Install Composer
 # -------------------------
 RUN curl -sS https://getcomposer.org/installer | php \
@@ -37,19 +48,35 @@ RUN curl -sS https://getcomposer.org/installer | php \
 WORKDIR /var/www/html
 
 # -------------------------
-# Copy package files for caching
+# Copy composer files first for layer caching
 # -------------------------
-COPY package*.json ./
-COPY vite.config.ts ./
-RUN npm ci
+COPY composer.json composer.lock ./
+
+# -------------------------
+# Safe git directory for Composer
+# -------------------------
+RUN git config --global --add safe.directory /var/www/html
+
+# -------------------------
+# Install PHP dependencies
+# -------------------------
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
 
 # -------------------------
 # Copy the rest of the app
 # -------------------------
 COPY . .
 
+# Re-run composer for post-autoload-dump scripts (package discovery)
+RUN composer dump-autoload --optimize
+
 # -------------------------
-# Ensure .env exists for Laravel / Wayfinder
+# Copy built frontend assets from builder stage
+# -------------------------
+COPY --from=frontend-builder /build/public/build/ public/build/
+
+# -------------------------
+# Ensure .env exists for Laravel bootstrapping
 # -------------------------
 COPY .env.example .env
 
@@ -60,18 +87,11 @@ COPY docker/docker-entrypoint.prod.sh /usr/local/bin/docker-entrypoint.prod.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.prod.sh
 
 # -------------------------
-# Safe git directory for Composer
+# Set folder permissions
 # -------------------------
-RUN git config --global --add safe.directory /var/www/html
-
-# -------------------------
-# Install PHP dependencies and set folder permissions
-# -------------------------
-RUN composer install --no-dev --optimize-autoloader --no-scripts \
-    && mkdir -p storage bootstrap/cache database \
-    && touch database/database.sqlite \
-    && chown -R www-data:www-data storage bootstrap/cache database \
-    && chmod -R 775 storage bootstrap/cache database
+RUN mkdir -p storage bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
 # -------------------------
 # Remove default nginx site

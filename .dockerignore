@@ -18,3 +18,16 @@ build
 # Env files
 .env
 .env.testing
+
+# Docker
+docker-compose*.yml
+
+# IDE
+.idea
+.vscode
+
+# Docs
+*.md
+
+# Tests
+tests/
