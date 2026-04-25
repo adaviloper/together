@@ -12,7 +12,7 @@ class ActualTotalSum extends Summarizer
     {
         return (int) Transaction::query()
             ->whereIn('category_id', $this->getQuery()->select('id'))
-            ->selectRaw('SUM(CASE WHEN debit IS NOT NULL THEN debit ELSE COALESCE(credit, 0) END) as total')
+            ->selectRaw('SUM(COALESCE(amount, 0)) as total')
             ->value('total');
     }
 

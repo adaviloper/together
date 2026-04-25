@@ -32,7 +32,7 @@ services:
       - together
 
   db:
-    image: bitnami/mariadb:latest
+    image: bitnami/mariadb:lts
     container_name: together_prod_db
     environment:
       MARIADB_ROOT_PASSWORD: root
@@ -40,7 +40,7 @@ services:
       MARIADB_USER: laravel
       MARIADB_PASSWORD: password
     volumes:
-      - db_data:/bitnami/mariadb
+      - db_data:/var/lib/mysql
       - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     restart: unless-stopped
     healthcheck:

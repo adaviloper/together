@@ -22,11 +22,7 @@ class CategoryProcessAvg extends Summarizer
 
         $actual = Transaction::query()
             ->whereIn('category_id', $categoryIds)
-            ->sum('debit');
-
-        $actual += Transaction::query()
-            ->whereIn('category_id', $categoryIds)
-            ->sum('credit');
+            ->sum('amount');
 
         return floor(($actual / $expected) * 100) / 100;
     }

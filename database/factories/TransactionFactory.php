@@ -22,7 +22,7 @@ class TransactionFactory extends Factory
         return [
             'transaction_date' => $this->faker->date('Y-m-d'),
             'amount' => $this->faker->numberBetween(1000, 99999),
-            'description' => $this->faker->words(2),
+            'description' => $this->faker->words(2, true),
             'subcategory_id' => Subcategory::factory(),
             'category_id' => Category::factory(),
             'user_id' => fn () => User::factory()->create()->id,
