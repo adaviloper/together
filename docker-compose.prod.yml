@@ -2,59 +2,28 @@ services:
   app:
     container_name: together
     image: together:latest
-    # For ZimaCube, replace with your registry image:
-    # image: ghcr.io/your-user/together:latest
     ports:
       - "2724:80"
     environment:
       APP_NAME: Together
       APP_ENV: production
       APP_DEBUG: "false"
-      APP_KEY: ${APP_KEY:-}
       APP_URL: http://localhost:2724
       DB_CONNECTION: mariadb
-      DB_HOST: together_prod_db
+      DB_HOST: 127.0.0.1
       DB_PORT: 3306
       DB_DATABASE: together
       DB_USERNAME: laravel
       DB_PASSWORD: password
-    depends_on:
-      db:
-        condition: service_healthy
+    volumes:
+      - db_data:/var/lib/mysql
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/up"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 30s
-    networks:
-      - together
-
-  db:
-    image: bitnami/mariadb:lts
-    container_name: together_prod_db
-    environment:
-      MARIADB_ROOT_PASSWORD: root
-      MARIADB_DATABASE: together
-      MARIADB_USER: laravel
-      MARIADB_PASSWORD: password
-    volumes:
-      - db_data:/var/lib/mysql
-      - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "/opt/bitnami/mariadb/bin/mariadb-admin", "ping", "-h", "127.0.0.1", "-u", "root", "-proot"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
       start_period: 60s
-    networks:
-      - together
 
 volumes:
   db_data:
-
-networks:
-  together:
-    driver: bridge
