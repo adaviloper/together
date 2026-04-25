@@ -6,10 +6,9 @@ mkdir -p storage bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
-# Generate APP_KEY only if not already set
-if [ -z "$APP_KEY" ] && ! grep -q "^APP_KEY=base64:" .env 2>/dev/null; then
-    echo "No APP_KEY found, generating one..."
-    php artisan key:generate --force
+# Override APP_KEY if provided via environment
+if [ -n "$APP_KEY" ]; then
+    sed -i "s|^APP_KEY=.*|APP_KEY=$APP_KEY|" .env
 fi
 
 # Cache Laravel config and views for performance

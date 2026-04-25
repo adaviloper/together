@@ -64,6 +64,7 @@ COPY . .
 # Ensure .env exists for Laravel / Wayfinder
 # -------------------------
 COPY .env.example .env
+RUN php artisan key:generate
 
 # Re-run composer for post-autoload-dump scripts (package discovery)
 RUN composer dump-autoload --optimize
