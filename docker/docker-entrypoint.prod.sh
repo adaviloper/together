@@ -6,9 +6,15 @@ mkdir -p storage bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
-# Override APP_KEY if provided via environment
+APP_KEY_FILE=storage/.app_key
+
 if [ -n "$APP_KEY" ]; then
     sed -i "s|^APP_KEY=.*|APP_KEY=$APP_KEY|" .env
+elif [ -f "$APP_KEY_FILE" ]; then
+    sed -i "s|^APP_KEY=.*|APP_KEY=$(cat $APP_KEY_FILE)|" .env
+else
+    php artisan key:generate --force
+    grep "^APP_KEY=" .env | sed 's/APP_KEY=//' > "$APP_KEY_FILE"
 fi
 
 # Initialize MariaDB data directory if this is a fresh volume

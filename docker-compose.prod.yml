@@ -17,6 +17,7 @@ services:
       DB_PASSWORD: password
     volumes:
       - db_data:/var/lib/mysql
+      - app_storage:/var/www/html/storage
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/up"]
@@ -27,3 +28,4 @@ services:
 
 volumes:
   db_data:
+  app_storage:
