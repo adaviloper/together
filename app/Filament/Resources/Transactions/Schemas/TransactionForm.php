@@ -17,6 +17,14 @@ class TransactionForm
         try {
             return $schema
                 ->components([
+                    DatePicker::make('transaction_date')
+                        ->required(),
+                    DatePicker::make('posted_date')
+                        ->required(),
+                    TextInput::make('card_number')
+                        ->required(),
+                    TextInput::make('description')
+                        ->required(),
                     Select::make('category_id')
                         ->label('Category')
                         ->options(Category::query()->pluck('name', 'id'))
@@ -26,14 +34,6 @@ class TransactionForm
                         ->options(fn (Get $get) => Subcategory::query()
                             ->where('category_id', $get('category_id'))
                             ->pluck('name', 'id')),
-                    DatePicker::make('transaction_date')
-                        ->required(),
-                    DatePicker::make('posted_date')
-                        ->required(),
-                    TextInput::make('card_number')
-                        ->required(),
-                    TextInput::make('description')
-                        ->required(),
                     TextInput::make('debit')
                         ->required()
                         ->numeric(),
