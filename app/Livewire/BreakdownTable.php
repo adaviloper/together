@@ -134,7 +134,7 @@ class BreakdownTable extends Component
             // Calculate already paid per user (sum of debits)
             foreach ($this->users as $user) {
                 $userTransactions = $monthTransactions->where('user_id', $user->id);
-                $alreadyPaid = $userTransactions->sum('debit') ?? 0;
+                $alreadyPaid = $userTransactions->sum('amount') ?? 0;
                 $this->breakdownData["{$user->name} Already Paid"][$month] = (int) $alreadyPaid;
             }
 
@@ -147,8 +147,7 @@ class BreakdownTable extends Component
 
             // Total Expenditures
             $totalExpenditures = $monthTransactions
-                ->whereNull('credit')
-                ->sum('debit') ?? 0;
+                ->sum('amount') ?? 0;
             $this->breakdownData['Total Expenditures'][$month] = (int) $totalExpenditures;
 
             // Validated (placeholder - would need additional logic/field)
@@ -258,7 +257,7 @@ class BreakdownTable extends Component
             if ($subcategory) {
                 $total = $monthTransactions
                     ->where('subcategory_id', $subcategory->id)
-                    ->sum('debit') ?? 0;
+                    ->sum('amount') ?? 0;
                 $this->breakdownData["Total {$subcategoryName}"][$month] = (int) $total;
             } else {
                 $this->breakdownData["Total {$subcategoryName}"][$month] = 0;
@@ -270,7 +269,7 @@ class BreakdownTable extends Component
         if ($billCategory) {
             $totalBills = $monthTransactions
                 ->where('category_id', $billCategory->id)
-                ->sum('debit') ?? 0;
+                ->sum('amount') ?? 0;
             $this->breakdownData['Total Bills'][$month] = (int) $totalBills;
         } else {
             $this->breakdownData['Total Bills'][$month] = 0;
@@ -299,14 +298,14 @@ class BreakdownTable extends Component
                 if ($categoryName === 'Bills') {
                     // Bills is a category, not a subcategory
                     $userContribution = $billCategory
-                        ? $userTransactions->where('category_id', $billCategory->id)->sum('debit') ?? 0
+                        ? $userTransactions->where('category_id', $billCategory->id)->sum('amount') ?? 0
                         : 0;
                     $totalForCategory = $this->breakdownData['Total Bills'][$month] ?? 0;
                 } else {
                     // These are subcategories
                     $subcategory = $subcategories->firstWhere('name', $categoryName);
                     $userContribution = $subcategory
-                        ? $userTransactions->where('subcategory_id', $subcategory->id)->sum('debit') ?? 0
+                        ? $userTransactions->where('subcategory_id', $subcategory->id)->sum('amount') ?? 0
                         : 0;
                     $totalForCategory = $this->breakdownData["Total {$categoryName}"][$month] ?? 0;
                 }

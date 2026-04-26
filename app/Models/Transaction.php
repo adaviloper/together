@@ -18,11 +18,12 @@ class Transaction extends Model
 
     protected $fillable = [
         'category_id',
-        'amount',
-        'description',
         'subcategory_id',
-        'transaction_date',
         'user_id',
+
+        'transaction_date',
+        'description',
+        'amount',
     ];
 
     public function category(): BelongsTo

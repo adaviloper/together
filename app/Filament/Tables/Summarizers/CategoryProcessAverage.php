@@ -25,8 +25,7 @@ class CategoryProcessAverage extends Summarizer
                 return 0.0;
             }
 
-            $actual = $category->transactions->sum('debit');
-            $actual += $category->transactions->sum('credit');
+            $actual = $category->transactions->sum('amount');
 
             return floor(($actual / $expected) * 100) / 100;
         });

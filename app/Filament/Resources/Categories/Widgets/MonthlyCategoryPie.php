@@ -42,18 +42,12 @@ class MonthlyCategoryPie extends ChartWidget
             ->whereIn('user_id', $userIds)
             ->where('transaction_date', '>=', $start)
             ->where('transaction_date', '<=', $end)
-            ->select(['subcategory_id', 'debit', 'credit'])
+            ->select(['subcategory_id', 'amount'])
             ->with('subcategory.category');
 
         $transactions = $query->get()
             ->groupBy('subcategory.category.name')
-            ->map->sum(function (Transaction $transaction) {
-                if (!$transaction->debit) {
-                    return $transaction->credit;
-                }
-
-                return $transaction->debit;
-            });
+            ->map->sum('amount');
 
         $transactions->put('Uncategorized', $transactions->get(''));
         $transactions->forget('');
@@ -92,18 +86,12 @@ class MonthlyCategoryPie extends ChartWidget
             ->whereIn('subcategory_id', $subcategoryIds)
             ->where('transaction_date', '>=', $start)
             ->where('transaction_date', '<=', $end)
-            ->select(['subcategory_id', 'debit', 'credit'])
+            ->select(['subcategory_id', 'amount'])
             ->with('subcategory');
 
         $transactions = $query->get()
             ->groupBy('subcategory.name')
-            ->map->sum(function (Transaction $transaction) {
-                if (!$transaction->debit) {
-                    return $transaction->credit;
-                }
-
-                return $transaction->debit;
-            });
+            ->map->sum('amount');
 
         $transactions->put('Uncategorized', $transactions->get(''));
         $transactions->forget('');

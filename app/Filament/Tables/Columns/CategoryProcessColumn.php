@@ -19,8 +19,7 @@ class CategoryProcessColumn extends Column
         }
         $transactions = $this->record->transactions;
 
-        $actual = $this->record->transactions->sum('debit');
-        $actual += $this->record->transactions->sum('credit');
+        $actual = $this->record->transactions->sum('amount');
         $percent = floor(($actual / $expected) * 10000);
 
 
