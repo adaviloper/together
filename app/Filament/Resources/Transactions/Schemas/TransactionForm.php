@@ -28,16 +28,9 @@ class TransactionForm
                             ->pluck('name', 'id')),
                     DatePicker::make('transaction_date')
                         ->required(),
-                    DatePicker::make('posted_date')
-                        ->required(),
-                    TextInput::make('card_number')
-                        ->required(),
                     TextInput::make('description')
                         ->required(),
-                    TextInput::make('debit')
-                        ->required()
-                        ->numeric(),
-                    TextInput::make('credit')
+                    TextInput::make('amount')
                         ->required()
                         ->numeric(),
                 ]);
