@@ -22,11 +22,17 @@ class ImportMapping extends Model
 
     protected $fillable = [
         'subcategory_id',
+        'user_id',
         'source',
     ];
 
     public function subcategory(): BelongsTo
     {
         return $this->belongsTo(Subcategory::class)->orderBy('name');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

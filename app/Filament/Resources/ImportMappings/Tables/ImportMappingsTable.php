@@ -17,6 +17,9 @@ class ImportMappingsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->where('user_id', auth()->id());
+            })
             ->columns([
                 SelectColumn::make('subcategory_id')
                     ->options(Subcategory::query()

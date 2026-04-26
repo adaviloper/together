@@ -25,19 +25,16 @@ class TransactionImporter extends Importer
                 })
                 ->rules(['required', 'date']),
 
-            ImportColumn::make('card_number')
-                ->label('Card/Account Number')
-                ->guess(['Card No.', 'Account Number'])
-                ->requiredMapping()
-                ->rules(['required', 'max:255']),
-
             ImportColumn::make('description')
                 ->label('Description')
                 ->guess(['Description', 'Transaction Description'])
                 ->requiredMapping()
                 ->fillRecordUsing(function (string $state, array $data, Transaction $record): void {
                     $mapping = ImportMapping::query()
-                        ->firstOrCreate(['source' => $state]);
+                        ->firstOrCreate([
+                            'source' => $state,
+                            'user_id' => auth()->id(),
+                        ]);
 
                     $record->subcategory_id = $mapping->subcategory_id;
                     $record->category_id = $mapping->subcategory?->category_id;
@@ -48,19 +45,6 @@ class TransactionImporter extends Importer
             // For checking account format - single amount column
             ImportColumn::make('amount')
                 ->label('Transaction Amount')
-                /* ->fillRecordUsing(function (Transaction $record, ?float $state, array $data): void { */
-                /*     if ($state === null) { */
-                /*         return; */
-                /*     } */
-                /**/
-                /*     $type = strtolower($data['transaction_type'] ?? ''); */
-                /**/
-                /*     if ($type === 'debit' || $state < 0) { */
-                /*         $record->amount = abs($state) * 100; */
-                /*     } else { */
-                /*         $record->credit = abs($state) * 100; */
-                /*     } */
-                /* }) */
                 ->rules(['numeric', 'nullable']),
 
             // Capture transaction type for logic but don't store it

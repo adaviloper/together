@@ -18,6 +18,9 @@ class ImportMappingForm
                 Select::make('subcategory_id')
                     ->relationship('subcategory', 'name')
                     ->required(),
+                Select::make('user_id')
+                    ->relationship('user', 'id')
+                    ->required(),
                 TextInput::make('source')
                     ->required(),
             ]);
