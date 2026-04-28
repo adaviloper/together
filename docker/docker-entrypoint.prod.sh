@@ -17,13 +17,19 @@ else
     grep "^APP_KEY=" .env | sed 's/APP_KEY=//' > "$APP_KEY_FILE"
 fi
 
+# Ensure mysql user owns the data directory (bind mount may be root-owned)
+chown -R mysql:mysql /var/lib/mysql
+
 # Initialize MariaDB data directory if this is a fresh volume
 if [ ! -d /var/lib/mysql/mysql ]; then
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
 fi
 
 # Start MariaDB temporarily to run setup and migrations
-(cd /var/lib/mysql && mysqld_safe --datadir=/var/lib/mysql) &
+# cd first so mysqld writes ddl_recovery.log to the datadir, not /var/www/html
+cd /var/lib/mysql
+mysqld_safe --datadir=/var/lib/mysql &
+cd /var/www/html
 
 until mysqladmin ping -h 127.0.0.1 --silent 2>/dev/null; do sleep 1; done
 
