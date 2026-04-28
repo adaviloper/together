@@ -22,11 +22,16 @@ class ImportMappingObserver
      */
     public function updated(ImportMapping $importMapping): void
     {
+        $subcategory = $importMapping->subcategory;
+
+        if (! $subcategory) {
+            return;
+        }
+
         $userIds = User::query()->where([
             'organization_id' => auth()->user()->organization_id,
         ])->get()->pluck('id');
-        $subcategory = $importMapping->subcategory;
-        Log::info($subcategory);
+
         Transaction::query()->whereIn('user_id', $userIds)
             ->where([
                 'description' => $importMapping->source,
