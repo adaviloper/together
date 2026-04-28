@@ -6,6 +6,8 @@ use App\Filament\Resources\Transactions\Pages\CreateTransaction;
 use App\Filament\Resources\Transactions\Pages\EditTransaction;
 use App\Filament\Resources\Transactions\Pages\ListTransactions;
 use App\Filament\Resources\Transactions\Pages\ViewTransaction;
+use App\Filament\Resources\Transactions\RelationManagers\CategoryRelationManager;
+use App\Filament\Resources\Transactions\RelationManagers\SubcategoryRelationManager;
 use App\Filament\Resources\Transactions\Schemas\TransactionForm;
 use App\Filament\Resources\Transactions\Schemas\TransactionInfolist;
 use App\Filament\Resources\Transactions\Tables\TransactionsTable;
@@ -46,7 +48,8 @@ class TransactionResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            SubcategoryRelationManager::class,
+            CategoryRelationManager::class,
         ];
     }
 

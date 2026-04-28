@@ -40,7 +40,7 @@ class SubcategoryResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\ImportMappingsRelationManager::class,
         ];
     }
 

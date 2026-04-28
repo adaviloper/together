@@ -44,6 +44,11 @@ class Subcategory extends Model
         return $this->belongsTo(Category::class)->orderBy('name', 'asc');
     }
 
+    public function importMappings(): HasMany
+    {
+        return $this->hasMany(ImportMapping::class);
+    }
+
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
