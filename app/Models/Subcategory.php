@@ -25,10 +25,10 @@ class Subcategory extends Model
 
     protected $fillable = [
         'category_id',
-        'fixed_split_ratio',
-        'monthly_budgeted',
         'name',
+        'monthly_budgeted',
         'split_strategy',
+        'fixed_split_ratio',
     ];
 
     protected function casts(): array
