@@ -15,12 +15,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transactions', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->date('transaction_date');
             $table->string('description');
-            $table->foreignIdFor(Category::class)->nullable();
-            $table->foreignIdFor(Subcategory::class)->nullable();
-            $table->foreignIdFor(User::class);
+            $table->foreignUuid('category_id')->nullable();
+            $table->foreignUuid('subcategory_id')->nullable();
+            $table->foreignUuid('user_id');
             $table->bigInteger('amount')->nullable();
             $table->boolean('hidden')->default(false);
             $table->softDeletes();
@@ -34,8 +34,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
-            $table->dropForeignIdFor(Category::class);
-            $table->dropForeignIdFor(Subcategory::class);
+            $table->dropForeign(['category_id', 'subcategory_id']);
         });
         Schema::dropIfExists('transactions');
     }

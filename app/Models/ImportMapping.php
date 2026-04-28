@@ -6,6 +6,7 @@ use App\Observers\ImportMappingObserver;
 use App\Policies\ImportMappingPolicy;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,6 +23,8 @@ class ImportMapping extends Model
 {
     /** @use HasFactory<\Database\Factories\ImportMappingFactory> */
     use HasFactory;
+
+    use HasUuids;
 
     protected $fillable = [
         'subcategory_id',

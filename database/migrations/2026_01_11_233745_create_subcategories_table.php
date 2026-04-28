@@ -13,8 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('subcategories', function (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(Category::class);
+            $table->uuid('id')->primary();
+            $table->foreignUuid('category_id');
             $table->string('name');
             $table->unsignedBigInteger('monthly_budgeted')->default(0);
             $table->timestamps();
@@ -27,7 +27,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('subcategories', function (Blueprint $table) {
-            $table->dropForeignIdFor(Category::class);
+            $table->dropForeign(['category_id']);
         });
         Schema::dropIfExists('subcategories');
     }

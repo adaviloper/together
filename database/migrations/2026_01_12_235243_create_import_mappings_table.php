@@ -14,9 +14,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('import_mappings', function (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(Subcategory::class)->nullable();
-            $table->foreignIdFor(User::class);
+            $table->uuid('id')->primary();
+            $table->foreignUuid('subcategory_id')->nullable();
+            $table->foreignUuid('user_id');
             $table->string('source');
             $table->boolean('hidden')->default(false);
             $table->timestamps();
