@@ -48,8 +48,8 @@ IMAGE_VERSION=$(cat "$SCHEMA_VERSION_FILE" 2>/dev/null || echo "0")
 APPLIED_VERSION=$(cat "$APPLIED_VERSION_FILE" 2>/dev/null || echo "0")
 
 if [ "$IMAGE_VERSION" != "$APPLIED_VERSION" ]; then
-    echo "Schema version changed ($APPLIED_VERSION -> $IMAGE_VERSION): running migrate:fresh --seed"
-    php artisan migrate:fresh --seed --force
+    echo "Schema version changed ($APPLIED_VERSION -> $IMAGE_VERSION): running migrate:fresh"
+    php artisan migrate:fresh --force
     echo "$IMAGE_VERSION" > "$APPLIED_VERSION_FILE"
 else
     php artisan migrate --force
