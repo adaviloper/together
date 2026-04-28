@@ -42,7 +42,7 @@ php artisan view:cache
 
 # Run migrations — refresh if the schema version has changed
 SCHEMA_VERSION_FILE="database/schema_version"
-APPLIED_VERSION_FILE="storage/app/.schema_version"
+APPLIED_VERSION_FILE="/var/lib/mysql/.schema_version"
 
 IMAGE_VERSION=$(cat "$SCHEMA_VERSION_FILE" 2>/dev/null || echo "0")
 APPLIED_VERSION=$(cat "$APPLIED_VERSION_FILE" 2>/dev/null || echo "0")
