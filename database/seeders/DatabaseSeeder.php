@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Organization;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -18,19 +17,21 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
         $this->call(OrganizationTableSeeder::class);
 
+        $organization = Organization::query()->first();
+
         /** @var User $user1 */
-        $user1 = User::factory()->create([
+        $user1 = User::create([
             'name' => config('dev.users.primary'),
             'email' => config('dev.users.primary') . '@together.com',
             'password' => Hash::make('password'),
-            'organization_id' => Organization::query()->first(),
+            'organization_id' => $organization->id,
         ]);
         /** @var User $user2 */
-        $user2 = User::factory()->create([
+        $user2 = User::create([
             'name' => config('dev.users.secondary'),
             'email' => config('dev.users.secondary') . '@together.com',
             'password' => Hash::make('password'),
-            'organization_id' => $user1->organization_id,
+            'organization_id' => $organization->id,
         ]);
 
         $this->call(CategoryTableSeeder::class);
