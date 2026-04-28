@@ -27,3 +27,5 @@ auth.json
 npm-debug.log
 phpstan.neon
 yarn-error.log
+
+*.tinker
