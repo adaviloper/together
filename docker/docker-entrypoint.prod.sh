@@ -23,7 +23,7 @@ if [ ! -d /var/lib/mysql/mysql ]; then
 fi
 
 # Start MariaDB temporarily to run setup and migrations
-mysqld_safe --datadir=/var/lib/mysql &
+(cd /var/lib/mysql && mysqld_safe --datadir=/var/lib/mysql) &
 
 until mysqladmin ping -h 127.0.0.1 --silent 2>/dev/null; do sleep 1; done
 
