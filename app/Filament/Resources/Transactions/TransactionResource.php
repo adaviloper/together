@@ -6,8 +6,6 @@ use App\Filament\Resources\Transactions\Pages\CreateTransaction;
 use App\Filament\Resources\Transactions\Pages\EditTransaction;
 use App\Filament\Resources\Transactions\Pages\ListTransactions;
 use App\Filament\Resources\Transactions\Pages\ViewTransaction;
-use App\Filament\Resources\Transactions\RelationManagers\CategoryRelationManager;
-use App\Filament\Resources\Transactions\RelationManagers\SubcategoryRelationManager;
 use App\Filament\Resources\Transactions\Schemas\TransactionForm;
 use App\Filament\Resources\Transactions\Schemas\TransactionInfolist;
 use App\Filament\Resources\Transactions\Tables\TransactionsTable;
@@ -17,9 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TransactionResource extends Resource
@@ -48,8 +44,7 @@ class TransactionResource extends Resource
     public static function getRelations(): array
     {
         return [
-            SubcategoryRelationManager::class,
-            CategoryRelationManager::class,
+            //
         ];
     }
 
