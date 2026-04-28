@@ -22,6 +22,7 @@ return new class extends Migration
             $table->foreignIdFor(Subcategory::class)->nullable();
             $table->foreignIdFor(User::class);
             $table->bigInteger('amount')->nullable();
+            $table->boolean('hidden')->default(false);
             $table->softDeletes();
             $table->timestamps();
         });

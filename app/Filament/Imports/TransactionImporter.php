@@ -39,6 +39,7 @@ class TransactionImporter extends Importer
                     $record->subcategory_id = $mapping->subcategory_id;
                     $record->category_id = $mapping->subcategory?->category_id;
                     $record->description = $state;
+                    $record->hidden = (bool)$mapping->hidden;
                 })
                 ->rules(['required', 'max:255']),
 

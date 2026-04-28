@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Observers\ImportMappingObserver;
+use App\Policies\ImportMappingPolicy;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Subcategory $subcategory
  */
 #[ObservedBy([ImportMappingObserver::class])]
+#[UsePolicy(ImportMappingPolicy::class)]
 class ImportMapping extends Model
 {
     /** @use HasFactory<\Database\Factories\ImportMappingFactory> */
@@ -24,6 +27,7 @@ class ImportMapping extends Model
         'subcategory_id',
         'user_id',
         'source',
+        'hidden',
     ];
 
     public function subcategory(): BelongsTo

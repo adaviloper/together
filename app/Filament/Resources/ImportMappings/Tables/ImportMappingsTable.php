@@ -6,6 +6,7 @@ use App\Models\Subcategory;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\CheckboxColumn;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -27,9 +28,13 @@ class ImportMappingsTable
                         ->get()
                         ->pluck('name', 'id')
                     )
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('user.name')
                     ->searchable(),
                 TextColumn::make('source')
                     ->searchable(),
+                CheckboxColumn::make('hidden'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignIdFor(Subcategory::class)->nullable();
             $table->foreignIdFor(User::class);
             $table->string('source');
+            $table->boolean('hidden')->default(false);
             $table->timestamps();
         });
     }

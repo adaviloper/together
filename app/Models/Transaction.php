@@ -23,10 +23,10 @@ class Transaction extends Model
         'category_id',
         'subcategory_id',
         'user_id',
-
         'transaction_date',
         'description',
         'amount',
+        'hidden',
     ];
 
     public function category(): BelongsTo

@@ -31,14 +31,21 @@ class TransactionsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $orgUserIds = User::query()
+                    ->where('organization_id', auth()->user()->organization_id)
+                    ->pluck('id');
+
+                $query->whereIn('user_id', $orgUserIds)
+                    ->where(function (Builder $q) {
+                        $q->orWhere('hidden', false);
+                    });
+            })
             ->columns([
                 TextColumn::make('transaction_date')
                     ->date()
                     ->sortable(),
-                TextColumn::make('user')
-                    ->formatStateUsing(function (Model $record) {
-                        return $record->user->name;
-                    }),
+                TextColumn::make('user.name'),
                 TextColumn::make('description')
                     ->searchable(),
                 SelectColumn::make('category_id')
