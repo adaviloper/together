@@ -17,19 +17,13 @@ else
     grep "^APP_KEY=" .env | sed 's/APP_KEY=//' > "$APP_KEY_FILE"
 fi
 
-# Ensure mysql user owns the data directory (bind mount may be root-owned)
-chown -R mysql:mysql /var/lib/mysql
-
 # Initialize MariaDB data directory if this is a fresh volume
 if [ ! -d /var/lib/mysql/mysql ]; then
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
 fi
 
 # Start MariaDB temporarily to run setup and migrations
-# cd first so mysqld writes ddl_recovery.log to the datadir, not /var/www/html
-cd /var/lib/mysql
 mysqld_safe --datadir=/var/lib/mysql &
-cd /var/www/html
 
 until mysqladmin ping -h 127.0.0.1 --silent 2>/dev/null; do sleep 1; done
 
@@ -46,20 +40,8 @@ mysql -u root -e "
 php artisan config:cache
 php artisan view:cache
 
-# Run migrations — refresh if the schema version has changed
-SCHEMA_VERSION_FILE="database/schema_version"
-APPLIED_VERSION_FILE="/var/lib/mysql/.schema_version"
-
-IMAGE_VERSION=$(cat "$SCHEMA_VERSION_FILE" 2>/dev/null || echo "0")
-APPLIED_VERSION=$(cat "$APPLIED_VERSION_FILE" 2>/dev/null || echo "0")
-
-if [ "$IMAGE_VERSION" != "$APPLIED_VERSION" ]; then
-    echo "Schema version changed ($APPLIED_VERSION -> $IMAGE_VERSION): running migrate:fresh"
-    php artisan migrate:fresh --force
-    echo "$IMAGE_VERSION" > "$APPLIED_VERSION_FILE"
-else
-    php artisan migrate --force
-fi
+# Run migrations
+php artisan migrate:fresh --force
 
 # Stop the temporary MariaDB (supervisord will manage it from here)
 mysqladmin -u root shutdown
