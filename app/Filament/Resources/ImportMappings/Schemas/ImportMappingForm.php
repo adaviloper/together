@@ -3,23 +3,37 @@
 namespace App\Filament\Resources\ImportMappings\Schemas;
 
 use App\Models\Category;
-use App\Models\Subcategory;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class ImportMappingForm
 {
     public static function configure(Schema $schema): Schema
     {
+        $subcategoryOptions = Category::query()
+            ->orderBy('name')
+            ->with('subcategories')
+            ->get()
+            ->mapWithKeys(fn (Category $category) => [
+                $category->name => $category->subcategories->pluck('name', 'id')->toArray(),
+            ])
+            ->all();
+
+        $users = auth()->user()
+            ->organization()
+            ->with('users')
+            ->first()->users->pluck('name', 'id');
+
         return $schema
             ->components([
                 Select::make('subcategory_id')
-                    ->relationship('subcategory', 'name')
+                    ->options($subcategoryOptions)
+                    ->searchable()
                     ->required(),
                 Select::make('user_id')
-                    ->relationship('user', 'id')
+                    ->options($users)
+                    ->searchable()
                     ->required(),
                 TextInput::make('source')
                     ->required(),
