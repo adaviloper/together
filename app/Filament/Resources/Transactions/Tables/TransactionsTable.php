@@ -38,7 +38,11 @@ class TransactionsTable
 
                 $query->whereIn('user_id', $orgUserIds)
                     ->where(function (Builder $q) {
-                        $q->orWhere('hidden', false);
+                        $q->where('hidden', false)
+                          ->orWhere(function (Builder $q) {
+                              $q->where('hidden', true)
+                                ->where('user_id', auth()->id());
+                          });
                     });
             })
             ->columns([
