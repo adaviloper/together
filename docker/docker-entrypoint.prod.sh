@@ -40,8 +40,20 @@ mysql -u root -e "
 php artisan config:cache
 php artisan view:cache
 
-# Run migrations
-php artisan migrate --force
+# Run migrations — refresh if the schema version has changed
+SCHEMA_VERSION_FILE="database/schema_version"
+APPLIED_VERSION_FILE="storage/app/.schema_version"
+
+IMAGE_VERSION=$(cat "$SCHEMA_VERSION_FILE" 2>/dev/null || echo "0")
+APPLIED_VERSION=$(cat "$APPLIED_VERSION_FILE" 2>/dev/null || echo "0")
+
+if [ "$IMAGE_VERSION" != "$APPLIED_VERSION" ]; then
+    echo "Schema version changed ($APPLIED_VERSION -> $IMAGE_VERSION): running migrate:fresh --seed"
+    php artisan migrate:fresh --seed --force
+    echo "$IMAGE_VERSION" > "$APPLIED_VERSION_FILE"
+else
+    php artisan migrate --force
+fi
 
 # Stop the temporary MariaDB (supervisord will manage it from here)
 mysqladmin -u root shutdown
