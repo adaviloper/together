@@ -24,7 +24,7 @@ class EqualSplitStrategy implements SplitStrategyInterface
         return 'Split equally regardless of income';
     }
 
-    public function calculateRatio(int $userId, array $incomeRatios, array $userIds, ?float $fixedRatio = null): float
+    public function calculateRatio(string $userId, array $incomeRatios, array $userIds, ?float $fixedRatio = null): float
     {
         return 1 / count($userIds);
     }
