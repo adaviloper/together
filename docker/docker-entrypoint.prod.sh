@@ -41,7 +41,7 @@ php artisan config:cache
 php artisan view:cache
 
 # Run migrations
-php artisan migrate:fresh --force
+php artisan migrate --force
 
 # Stop the temporary MariaDB (supervisord will manage it from here)
 mysqladmin -u root shutdown
