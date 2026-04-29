@@ -24,7 +24,7 @@ class IncomeSplitStrategy implements SplitStrategyInterface
         return 'Split based on each person\'s income contribution for the month';
     }
 
-    public function calculateRatio(int $userId, array $incomeRatios, array $userIds, ?float $fixedRatio = null): float
+    public function calculateRatio(string $userId, array $incomeRatios, array $userIds, ?float $fixedRatio = null): float
     {
         // Use the income ratio for this user, or fall back to equal split
         return $incomeRatios[$userId] ?? (1 / count($userIds));

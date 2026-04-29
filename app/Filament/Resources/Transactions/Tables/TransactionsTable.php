@@ -55,7 +55,7 @@ class TransactionsTable
                 SelectColumn::make('category_id')
                     ->label('Category')
                     ->options(Category::pluck('name', 'id')->toArray())
-                    ->getStateUsing(function (Model $record): ?int {
+                    ->getStateUsing(function (Model $record): ?string {
                         return $record->category_id
                             ?? $record->subcategory?->category_id;
                     })

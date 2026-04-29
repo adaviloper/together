@@ -30,5 +30,5 @@ interface SplitStrategyInterface extends Stringable
      * @param float|null $fixedRatio Optional fixed ratio from the subcategory
      * @return float The ratio (0.0 - 1.0) this user should pay
      */
-    public function calculateRatio(int $userId, array $incomeRatios, array $userIds, ?float $fixedRatio = null): float;
+    public function calculateRatio(string $userId, array $incomeRatios, array $userIds, ?float $fixedRatio = null): float;
 }

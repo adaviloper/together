@@ -65,7 +65,7 @@ class Subcategory extends Model
      * @param array<int> $userIds All user IDs in the organization
      * @return float The ratio (0.0 - 1.0) this user should pay
      */
-    public function getSplitRatioForUser(int $userId, array $incomeRatios, array $userIds): float
+    public function getSplitRatioForUser(string $userId, array $incomeRatios, array $userIds): float
     {
         return $this->split_strategy->calculateRatio(
             $userId,

@@ -24,7 +24,7 @@ class FixedSplitStrategy implements SplitStrategyInterface
         return 'Use a custom fixed split ratio';
     }
 
-    public function calculateRatio(int $userId, array $incomeRatios, array $userIds, ?float $fixedRatio = null): float
+    public function calculateRatio(string $userId, array $incomeRatios, array $userIds, ?float $fixedRatio = null): float
     {
         // If no fixed ratio is set, fall back to equal split
         if ($fixedRatio === null) {
