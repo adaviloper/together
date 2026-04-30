@@ -103,6 +103,9 @@ class TransactionsTable
                 Filter::make('uncategorized')
                     ->label('Uncategorized')
                     ->query(fn (Builder $query) => $query->whereNull('category_id')->orWhereNull('subcategory_id')),
+                Filter::make('visible')
+                    ->label('Visible')
+                    ->query(fn (Builder $query) => $query->where('hidden', false)),
                 SelectFilter::make('user')
                     ->options(function () {
                         /** @var User $user */
