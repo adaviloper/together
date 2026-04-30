@@ -35,6 +35,7 @@ class MonthlyCategorySummary extends TableWidget
         return $table
             ->query(fn (): Builder => Subcategory::query()
                 ->with(['transactions' => fn ($query) => $query
+                    ->where('hidden')
                     ->where('transaction_date', '>=', $start)
                     ->where('transaction_date', '<=', $end),
                 ])
@@ -49,25 +50,21 @@ class MonthlyCategorySummary extends TableWidget
                 TextColumn::make('actual')
                     ->state(function ($record) use ($category) {
                         return $record->transactions->sum(function (Transaction $transaction) {
-                            if (!$transaction->debit) {
-                                return $transaction->credit;
-                            }
-
-                            return $transaction->debit;
+                            return $transaction->amount;
                         });
                     })
-                ->money(divideBy: 100),
+                    ->money(divideBy: 100),
                 TextColumn::make('process')
                     ->state(function ($record) use ($category) {
                         $expected = $record->monthly_budgeted;
                         $actual = $record->transactions->sum(function (Transaction $transaction) {
-                            if (!$transaction->debit) {
-                                return $transaction->credit;
-                            }
-
-                            return $transaction->debit;
+                            return $transaction->amount;
                         });
-                        return floor(($actual / $expected) * 100) . '%';
+                        try {
+                            return floor(($actual / $expected) * 100) . '%';
+                        } catch (\Throwable $throw) {
+                            return '0%';
+                        }
                     }),
             ])
             ->filters([
