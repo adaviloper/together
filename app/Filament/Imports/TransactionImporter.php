@@ -46,13 +46,12 @@ class TransactionImporter extends Importer
             // For checking account format - single amount column
             ImportColumn::make('amount')
                 ->label('Transaction Amount')
-                ->rules(['numeric', 'nullable']),
-
-            // Capture transaction type for logic but don't store it
-            ImportColumn::make('transaction_type')
-                ->label('Transaction Type')
-                ->fillRecordUsing(fn () => null)
-                ->rules(['nullable']),
+                ->rules(['numeric', 'nullable'])
+                ->fillRecordUsing(function (?string $state, array $data, Transaction $record): void {
+                    $amount = $state ?? $data['credit'] ?? $data['Credit'];
+                    $record->amount = (int) round((float) $amount * 100);
+                })
+            ,
         ];
     }
 
