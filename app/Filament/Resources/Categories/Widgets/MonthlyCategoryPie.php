@@ -37,8 +37,10 @@ class MonthlyCategoryPie extends ChartWidget
 
     protected function getCategoryLevelData($userIds, $start, $end): array
     {
+        $incomeCategory = Category::query()->where('name', '!=', 'income')->first();
         /** @var \Illuminate\Database\Eloquent\Builder $query */
         $query = Transaction::query()
+            ->where('category_id', '!=', $incomeCategory->id)
             ->whereIn('user_id', $userIds)
             ->where('transaction_date', '>=', $start)
             ->where('transaction_date', '<=', $end)
@@ -80,8 +82,10 @@ class MonthlyCategoryPie extends ChartWidget
             ->where('category_id', $category->id)
             ->pluck('id');
 
+        $incomeCategory = Category::query()->where('name', '!=', 'income')->first();
         /** @var \Illuminate\Database\Eloquent\Builder $query */
         $query = Transaction::query()
+            ->where('category_id', '!=', $incomeCategory->id)
             ->whereIn('user_id', $userIds)
             ->whereIn('subcategory_id', $subcategoryIds)
             ->where('transaction_date', '>=', $start)
