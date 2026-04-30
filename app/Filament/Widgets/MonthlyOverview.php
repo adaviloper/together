@@ -32,7 +32,9 @@ class MonthlyOverview extends TableWidget
         return $table
             ->heading('Cash Flow Summary')
             ->query(fn (): Builder => Category::query()
+                ->where('name', '!=', 'income')
                 ->with(['subcategories', 'transactions' => fn ($query) => $query
+                    ->where('hidden', false)
                     ->where('transaction_date', '>=', $start)
                     ->where('transaction_date', '<=', $end),
                 ])
@@ -42,7 +44,7 @@ class MonthlyOverview extends TableWidget
                 ExpectedTotalColumn::make('expected')
                     ->summarize(ExpectedTotalSum::make()),
                 ActualTotalColumn::make('actual')
-                    ->summarize(ActualTotalSum::make()),
+                    ->summarize(ActualTotalSum::make()->month($month)->year($year)),
                 CategoryProcessColumn::make('process')
                     ->summarize(CategoryProcessAvg::make()),
             ])
