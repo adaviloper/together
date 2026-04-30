@@ -22,6 +22,7 @@ class SubcategoryForm
                 TextInput::make('monthly_budgeted')
                     ->label('Monthly Budget')
                     ->numeric()
+                    ->default(0)
                     ->prefix('$')
                     ->helperText('Amount in cents'),
                 Select::make('split_strategy')

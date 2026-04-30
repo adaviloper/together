@@ -26,7 +26,6 @@ class Category extends Model
 
     protected $fillable = [
         'name',
-        'monthly_budgeted',
     ];
 
     public function subcategories(): HasMany

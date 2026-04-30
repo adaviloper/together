@@ -39,7 +39,7 @@ class SubcategoryTableSeeder extends Seeder
             ['name' => 'Pet Insurance Reimbursement', 'category' => 'Income'],
         ])->each(function (array $category) use ($categories) {
                 /* dump($categories->get($category['category']), __METHOD__ . ':' . __LINE__); */
-                Subcategory::factory()->create([
+                Subcategory::query()->firstOrCreate([
                     'name' => $category['name'],
                     'category_id' => $categories->get($category['category'])->id,
                 ]);

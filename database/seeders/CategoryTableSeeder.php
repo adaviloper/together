@@ -18,7 +18,8 @@ class CategoryTableSeeder extends Seeder
             ['name' => 'Expense'],
             ['name' => 'Saving Goal'],
             ['name' => 'Debt'],
-        ])->each(fn (array $category) =>
-        Category::factory()->create($category));
+        ])->each(function (array $category) {
+                $cat = Category::query()->firstOrCreate($category);
+            });
     }
 }
