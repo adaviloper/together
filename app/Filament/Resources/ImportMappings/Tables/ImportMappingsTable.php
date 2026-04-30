@@ -33,6 +33,7 @@ class ImportMappingsTable
                 TextColumn::make('user.name')
                     ->searchable(),
                 TextColumn::make('source')
+                    ->sortable()
                     ->searchable(),
                 CheckboxColumn::make('hidden'),
                 TextColumn::make('created_at')

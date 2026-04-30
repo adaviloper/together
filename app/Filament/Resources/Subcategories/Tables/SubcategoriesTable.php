@@ -28,6 +28,7 @@ class SubcategoriesTable
                 TextColumn::make('name')
                     ->searchable(),
                 TextInputColumn::make('monthly_budgeted')
+                    ->sortable()
                     ->searchable(),
                 SelectColumn::make('split_strategy')
                     ->label('Split')
