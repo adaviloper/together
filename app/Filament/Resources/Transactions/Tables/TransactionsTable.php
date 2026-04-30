@@ -113,11 +113,13 @@ class TransactionsTable
                         $org = $user->organization()->with('users')->first();
                         return $org->users->mapWithKeys(fn ($user) => [$user->id => $user->name]);
                     })
-                    ->query(fn (Builder $query, array $data) =>
-                        $query->when($data['value'], fn (Builder $q, $month) =>
-                            $q->whereMonth('transaction_date', $month)
-                        )
-                    ),
+                    ->query(function (Builder $query, array $data) {
+                        $v = $query->when(
+                            $data['value'],
+                            function (Builder $q, $userId) {
+                                $q->where('user_id', $userId);
+                            });
+                    }),
                 SelectFilter::make('month')
                     ->options([
                         '1' => 'January',
