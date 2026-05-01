@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\Categories\Tables;
 
+use App\Filament\Exports\CategoryExporter;
+use App\Filament\Imports\CategoryImporter;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportAction;
+use Filament\Actions\ImportAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
 
 class CategoriesTable
@@ -48,6 +51,10 @@ class CategoriesTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
+                ImportAction::make()
+                    ->importer(CategoryImporter::class),
+                ExportAction::make()
+                    ->exporter(CategoryExporter::class),
             ]);
     }
 }

@@ -3,10 +3,14 @@
 namespace App\Filament\Resources\Subcategories\Tables;
 
 use App\Casts\SplitStrategyCast;
+use App\Filament\Exports\SubcategoryExporter;
+use App\Filament\Imports\SubcategoryImporter;
 use App\Models\Subcategory;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportAction;
+use Filament\Actions\ImportAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -68,6 +72,10 @@ class SubcategoriesTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
+                ImportAction::make()
+                    ->importer(SubcategoryImporter::class),
+                ExportAction::make()
+                    ->exporter(SubcategoryExporter::class),
             ]);
     }
 }

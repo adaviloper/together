@@ -2,10 +2,14 @@
 
 namespace App\Filament\Resources\ImportMappings\Tables;
 
+use App\Filament\Exports\ImportMappingExporter;
+use App\Filament\Imports\ImportMappingImporter;
 use App\Models\Subcategory;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportAction;
+use Filament\Actions\ImportAction;
 use Filament\Tables\Columns\CheckboxColumn;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -58,6 +62,10 @@ class ImportMappingsTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
+                ImportAction::make()
+                    ->importer(ImportMappingImporter::class),
+                ExportAction::make()
+                    ->exporter(ImportMappingExporter::class),
             ]);
     }
 }
