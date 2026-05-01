@@ -20,7 +20,7 @@ class ImportMappingImporter extends Importer
             ImportColumn::make('source')
                 ->requiredMapping()
                 ->rules(['required', 'max:255']),
-            ImportColumn::make('hidden')
+            ImportColumn::make('skip')
                 ->requiredMapping()
                 ->boolean()
                 ->rules(['required', 'boolean']),

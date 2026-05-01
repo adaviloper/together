@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $category_id
  * @property string $subcategory_id
  * @property int $amount
- * @property bool $hidden
  *
  * @method static TransactionFactory factory()
  */
@@ -37,7 +36,6 @@ class Transaction extends Model
         'transaction_date',
         'description',
         'amount',
-        'hidden',
     ];
 
     public function category(): BelongsTo

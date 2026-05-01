@@ -32,7 +32,6 @@ class ActualTotalSum extends Summarizer
 
         return (int) Transaction::query()
             ->whereIn('category_id', $this->getQuery()->select('id'))
-            ->where('hidden', false)
             ->whereBetween('transaction_date', [$start, $end])
             ->selectRaw('SUM(COALESCE(amount, 0)) as total')
             ->value('total');

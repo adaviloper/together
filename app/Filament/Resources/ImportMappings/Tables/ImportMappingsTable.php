@@ -39,7 +39,7 @@ class ImportMappingsTable
                 TextColumn::make('source')
                     ->sortable()
                     ->searchable(),
-                CheckboxColumn::make('hidden'),
+                CheckboxColumn::make('skip'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

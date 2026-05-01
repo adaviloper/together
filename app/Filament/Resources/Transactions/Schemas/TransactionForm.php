@@ -34,8 +34,6 @@ class TransactionForm
                     TextInput::make('amount')
                         ->required()
                         ->numeric(),
-                    Checkbox::make('hidden')
-                        ->required(),
                 ]);
         } catch (\Throwable $th) {
             dd($th, __METHOD__ . ':' . __LINE__);

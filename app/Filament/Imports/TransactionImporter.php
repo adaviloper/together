@@ -19,6 +19,7 @@ class TransactionImporter extends Importer
         return [
             ImportColumn::make('transaction_date')
                 ->label('Transaction Date')
+                ->guess(['Transaction Date', 'Date'])
                 ->requiredMapping()
                 ->fillRecordUsing(function (Transaction $record, string $state): void {
                     $record->transaction_date = Carbon::parse($state)->format('Y-m-d');
@@ -27,7 +28,7 @@ class TransactionImporter extends Importer
 
             ImportColumn::make('description')
                 ->label('Description')
-                ->guess(['Description', 'Transaction Description'])
+                ->guess([' Description', 'Transaction Description'])
                 ->requiredMapping()
                 ->fillRecordUsing(function (string $state, array $data, Transaction $record): void {
                     $mapping = ImportMapping::query()
@@ -39,7 +40,6 @@ class TransactionImporter extends Importer
                     $record->subcategory_id = $mapping->subcategory_id;
                     $record->category_id = $mapping->subcategory?->category_id;
                     $record->description = $state;
-                    $record->hidden = (bool)$mapping->hidden;
                 })
                 ->rules(['required', 'max:255']),
 
@@ -47,6 +47,7 @@ class TransactionImporter extends Importer
             ImportColumn::make('amount')
                 ->label('Transaction Amount')
                 ->rules(['numeric', 'nullable'])
+                ->guess(['Debit', ' Amount', 'debit', 'amount'])
                 ->fillRecordUsing(function (?string $state, array $data, Transaction $record): void {
                     $amount = $state ?? $data['credit'] ?? $data['Credit'];
                     $record->amount = (int) round((float) $amount * 100);
@@ -55,8 +56,16 @@ class TransactionImporter extends Importer
         ];
     }
 
-    public function resolveRecord(): Transaction
+    public function resolveRecord(): ?Transaction
     {
+        $mapping = ImportMapping::query()
+            ->firstOrCreate([
+                'source' => $this->data['description'],
+                'user_id' => auth()->id(),
+            ]);
+        if ($mapping->skip) {
+            return null;
+        }
         return new Transaction([
             'user_id' => auth()->id(),
         ]);

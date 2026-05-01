@@ -16,7 +16,6 @@ use Filament\Actions\ViewAction;
 use Filament\QueryBuilder\Constraints\DateConstraint;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Filters\SelectFilter;
@@ -36,14 +35,7 @@ class TransactionsTable
                     ->where('organization_id', auth()->user()->organization_id)
                     ->pluck('id');
 
-                $query->whereIn('user_id', $orgUserIds)
-                    ->where(function (Builder $q) {
-                        $q->where('hidden', false)
-                          ->orWhere(function (Builder $q) {
-                              $q->where('hidden', true)
-                                ->where('user_id', auth()->id());
-                          });
-                    });
+                $query->whereIn('user_id', $orgUserIds);
             })
             ->columns([
                 TextColumn::make('transaction_date')
@@ -103,9 +95,6 @@ class TransactionsTable
                 Filter::make('uncategorized')
                     ->label('Uncategorized')
                     ->query(fn (Builder $query) => $query->whereNull('category_id')->orWhereNull('subcategory_id')),
-                Filter::make('visible')
-                    ->label('Visible')
-                    ->query(fn (Builder $query) => $query->where('hidden', false)),
                 SelectFilter::make('user')
                     ->options(function () {
                         /** @var User $user */

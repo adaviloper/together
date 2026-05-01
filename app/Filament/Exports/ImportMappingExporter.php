@@ -15,13 +15,9 @@ class ImportMappingExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id')
-                ->label('ID'),
             ExportColumn::make('subcategory.name'),
             ExportColumn::make('source'),
-            ExportColumn::make('hidden'),
-            ExportColumn::make('created_at'),
-            ExportColumn::make('updated_at'),
+            ExportColumn::make('skip'),
         ];
     }
 

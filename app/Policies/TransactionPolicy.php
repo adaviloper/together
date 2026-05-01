@@ -21,7 +21,7 @@ class TransactionPolicy
      */
     public function view(User $user, Transaction $transaction): bool
     {
-        return $user->id === $transaction->user_id || !$transaction->hidden;
+        return $user->id === $transaction->user_id || !$transaction->skip;
     }
 
     /**

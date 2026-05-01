@@ -35,7 +35,6 @@ class MonthlyCategorySummary extends TableWidget
         return $table
             ->query(fn (): Builder => Subcategory::query()
                 ->with(['transactions' => fn ($query) => $query
-                    ->where('hidden')
                     ->where('transaction_date', '>=', $start)
                     ->where('transaction_date', '<=', $end),
                 ])

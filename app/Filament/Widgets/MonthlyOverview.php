@@ -34,7 +34,6 @@ class MonthlyOverview extends TableWidget
             ->query(fn (): Builder => Category::query()
                 ->where('name', '!=', 'income')
                 ->with(['subcategories', 'transactions' => fn ($query) => $query
-                    ->where('hidden', false)
                     ->where('transaction_date', '>=', $start)
                     ->where('transaction_date', '<=', $end),
                 ])

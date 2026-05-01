@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property int $subcategory_id
  * @property string $source
+ * @property bool $skip
  *
  * @property Subcategory $subcategory
  */
@@ -30,7 +31,7 @@ class ImportMapping extends Model
         'subcategory_id',
         'user_id',
         'source',
-        'hidden',
+        'skip',
     ];
 
     public function subcategory(): BelongsTo
