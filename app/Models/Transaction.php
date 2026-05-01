@@ -12,6 +12,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
+ * @property string $user_id
+ * @property string $transaction_date
+ * @property string $description
+ * @property string $category_id
+ * @property string $subcategory_id
+ * @property int $amount
+ * @property bool $hidden
+ *
  * @method static TransactionFactory factory()
  */
 #[UsePolicy(TransactionPolicy::class)]
