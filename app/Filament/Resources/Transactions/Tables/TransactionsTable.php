@@ -158,7 +158,7 @@ class TransactionsTable
                     ->constraints([
                         DateConstraint::make('transaction_date')
                     ])
-            ], layout: FiltersLayout::AboveContent)
+            ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
