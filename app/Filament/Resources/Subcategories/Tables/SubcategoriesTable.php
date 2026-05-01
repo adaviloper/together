@@ -6,6 +6,7 @@ use App\Casts\SplitStrategyCast;
 use App\Filament\Exports\SubcategoryExporter;
 use App\Filament\Imports\SubcategoryImporter;
 use App\Models\Subcategory;
+use App\SplitStrategies\FixedSplitStrategy;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -30,6 +31,7 @@ class SubcategoriesTable
                     ->optionsRelationship('category', 'name')
                     ->sortable(),
                 TextColumn::make('name')
+                    ->sortable()
                     ->searchable(),
                 TextInputColumn::make('monthly_budgeted')
                     ->sortable()
@@ -42,6 +44,12 @@ class SubcategoriesTable
                             ->all()
                     )
                     ->getStateUsing(fn (Subcategory $record) => $record->split_strategy::key())
+                    ->sortable(),
+                TextInputColumn::make('fixed_split_ratio')
+                    ->label('Fixed Split Ratio')
+                    ->disabled(function (Subcategory $record) {
+                        return $record->split_strategy->key() !== FixedSplitStrategy::key();
+                    })
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
