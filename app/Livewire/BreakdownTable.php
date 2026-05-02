@@ -171,9 +171,10 @@ class BreakdownTable extends Component
 
         foreach ($this->users as $user) {
             $income = $transactions
+                ->where('category.name', 'Income')
                 ->where('user_id', $user->id)
-                ->whereNotNull('credit')
-                ->sum('credit') ?? 0;
+                ->sum('amount') ?? 0
+            ;
             $incomeByUser[$user->id] = (int) $income;
         }
 
@@ -264,11 +265,14 @@ class BreakdownTable extends Component
             }
         }
 
+        $mortgage = $subcategories->where('name', 'Mortgage')->first();
         // Total Bills (all Bill category transactions)
         $billCategory = Category::query()->where('name', 'Bill')->first();
         if ($billCategory) {
             $totalBills = $monthTransactions
+                ->where('subcategory_id', '!=', $subcategories->where('name', 'Mortgage')->first()->id)
                 ->where('category_id', $billCategory->id)
+                ->select('transaction_date', 'description', 'amount', 'subcategory')
                 ->sum('amount') ?? 0;
             $this->breakdownData['Total Bills'][$month] = (int) $totalBills;
         } else {

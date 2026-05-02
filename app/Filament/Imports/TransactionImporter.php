@@ -18,8 +18,8 @@ class TransactionImporter extends Importer
     {
         return [
             ImportColumn::make('transaction_date')
-                ->label('Transaction Date')
-                ->guess(['Transaction Date', 'Date'])
+                ->label('Posted Date')
+                ->guess(['Posted Date', 'Date'])
                 ->requiredMapping()
                 ->fillRecordUsing(function (Transaction $record, string $state): void {
                     $record->transaction_date = Carbon::parse($state)->format('Y-m-d');

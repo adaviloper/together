@@ -16,6 +16,7 @@ use Filament\Actions\ViewAction;
 use Filament\QueryBuilder\Constraints\DateConstraint;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Filters\SelectFilter;
@@ -95,6 +96,24 @@ class TransactionsTable
                 Filter::make('uncategorized')
                     ->label('Uncategorized')
                     ->query(fn (Builder $query) => $query->whereNull('category_id')->orWhereNull('subcategory_id')),
+                SelectFilter::make('category')
+                    ->options(function () {
+                        return Category::query()->get()->mapWithKeys(fn ($category) => [$category->id => $category->name]);
+                    })
+                    ->query(function (Builder $query, array $data) {
+                        $query->when($data['value'], function (Builder $q, $categoryId) {
+                            $q->where('category_id', $categoryId);
+                        });
+                    }),
+                SelectFilter::make('subcategory')
+                    ->options(function () {
+                        return Subcategory::query()->get()->mapWithKeys(fn ($subcategory) => [$subcategory->id => $subcategory->name]);
+                    })
+                    ->query(function (Builder $query, array $data) {
+                        $query->when($data['value'], function (Builder $q, $subcategoryId) {
+                            $q->where('subcategory_id', $subcategoryId);
+                        });
+                    }),
                 SelectFilter::make('user')
                     ->options(function () {
                         /** @var User $user */
