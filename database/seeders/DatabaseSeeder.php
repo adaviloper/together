@@ -34,8 +34,8 @@ class DatabaseSeeder extends Seeder
             'organization_id' => $organization->id,
         ]);
 
-        $this->call(CategoryTableSeeder::class);
-        $this->call(SubcategoryTableSeeder::class);
+        /* $this->call(CategoryTableSeeder::class); */
+        /* $this->call(SubcategoryTableSeeder::class); */
         /* $this->call(ImportMappingTableSeeder::class); */
         /* $this->call(TransactionTableSeeder::class); */
     }
