@@ -2,6 +2,8 @@
 
 namespace App\Filament\Tables\Columns;
 
+use App\Models\Category;
+use App\Models\Transaction;
 use Closure;
 use Filament\Support\Enums\Alignment;
 use Filament\Tables\Columns\Column;
@@ -16,7 +18,11 @@ class ExpectedTotalColumn extends Column
 
     public function getState(): int
     {
-        return $this->record->subcategories->sum('monthly_budgeted');
+        return match ($this->record::class) {
+            Category::class => $this->record->subcategories->sum('monthly_budgeted'),
+            Transaction::class => $this->record->amount,
+            default => 0,
+        };
     }
 
     public function getExpectedTotal(): string

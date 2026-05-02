@@ -30,11 +30,14 @@ class ActualTotalSum extends Summarizer
         $start = Carbon::create($this->year ?? now()->year, $this->month ?? now()->month)->startOfMonth();
         $end = $start->copy()->endOfMonth();
 
-        return (int) Transaction::query()
+        $sum = Transaction::query()
             ->whereIn('category_id', $this->getQuery()->select('id'))
             ->whereBetween('transaction_date', [$start, $end])
-            ->selectRaw('SUM(COALESCE(amount, 0)) as total')
-            ->value('total');
+            /* ->selectRaw('SUM(COALESCE(amount, 0)) as total') */
+            /* ->value('total') */
+            ->sum('amount')
+        ;
+        return (int) $sum;
     }
 
     public function formatState(mixed $state): string

@@ -2,9 +2,12 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Resources\Categories\Widgets\MonthlyIncomePie;
+use App\Filament\Resources\Categories\Widgets\MonthlyOutflowPie;
 use App\Filament\Widgets\MonthlyCategorySummary;
-use App\Filament\Widgets\MonthlyOverview;
+use App\Filament\Widgets\MonthlyCashFlowSummary;
 use App\Filament\Resources\Categories\Widgets\MonthlyCategoryPie;
+use App\Filament\Widgets\MonthlyIncomeSummary;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -89,44 +92,26 @@ class MonthlySummary extends Page
     public function getHeaderWidgets(): array
     {
         return [
-            MonthlyOverview::make([
+            MonthlyCashFlowSummary::make([
                 'month' => $this->month,
                 'year' => $this->year,
             ]),
-            MonthlyCategoryPie::make([
+            MonthlyOutflowPie::make([
                 'month' => $this->month,
                 'year' => $this->year,
+                'categories' => [
+                    'Bill',
+                    'Expense',
+                    'Debt',
+                    'Saving Goal',
+                ],
             ]),
-            MonthlyCategorySummary::make([
+
+            MonthlyIncomeSummary::make([
                 'month' => $this->month,
                 'year' => $this->year,
-                'categoryName' => 'Income',
-            ]),
-            MonthlyCategoryPie::make([
-                'month' => $this->month,
-                'year' => $this->year,
-                'categoryName' => 'Income',
-            ]),
-            MonthlyCategorySummary::make([
-                'month' => $this->month,
-                'year' => $this->year,
-                'categoryName' => 'Expense',
-            ]),
-            MonthlyCategoryPie::make([
-                'month' => $this->month,
-                'year' => $this->year,
-                'categoryName' => 'Expense',
-            ]),
-            MonthlyCategorySummary::make([
-                'month' => $this->month,
-                'year' => $this->year,
-                'categoryName' => 'Bill',
-            ]),
-            MonthlyCategoryPie::make([
-                'month' => $this->month,
-                'year' => $this->year,
-                'categoryName' => 'Bill',
-            ]),
+            ])
+
         ];
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Tables\Columns;
 
+use App\Models\Category;
+use App\Models\Transaction;
 use Filament\Tables\Columns\Column;
 
 /**
@@ -13,13 +15,30 @@ class CategoryProcessColumn extends Column
 
     public function getProcess(): string
     {
-        $expected = $this->record->subcategories->sum('monthly_budgeted');
+        $expected = match ($this->record::class) {
+            Category::class => $this->record->subcategories->sum('monthly_budgeted'),
+            Transaction::class => $this->record->amount,
+            default => 0,
+        };
+
         if ($expected === 0) {
             return '0.0%';
         }
-        $transactions = $this->record->transactions;
 
-        $actual = $this->record->transactions->sum('amount');
+        $transactions = match ($this->record::class) {
+            Category::class => $this->record->transactions,
+            Transaction::class => $this->record,
+            default => 0,
+        };
+
+        $actual = match ($this->record::class) {
+            Category::class => $this->record->transactions->sum('amount'),
+            Transaction::class => $this->record->amount,
+            default => 0,
+        };
+        ;
+
+
         $percent = floor(($actual / $expected) * 10000);
 
 
