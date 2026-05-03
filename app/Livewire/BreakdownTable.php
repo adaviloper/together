@@ -133,8 +133,8 @@ class BreakdownTable extends Component
 
             // Calculate already paid per user (sum of debits)
             foreach ($this->users as $user) {
-                $userTransactions = $monthTransactions->where('user_id', $user->id);
-                $alreadyPaid = $userTransactions->sum('amount') ?? 0;
+                $userTransactions = $monthTransactions->where('user_id', $user->id)->where('category.name', '!=', 'Income');
+                $alreadyPaid = $userTransactions->where('category.name', '!=', 'Income')->sum('amount') ?? 0;
                 $this->breakdownData["{$user->name} Already Paid"][$month] = (int) $alreadyPaid;
             }
 
@@ -147,6 +147,7 @@ class BreakdownTable extends Component
 
             // Total Expenditures
             $totalExpenditures = $monthTransactions
+                ->where('category.name', '!=', 'Income')
                 ->sum('amount') ?? 0;
             $this->breakdownData['Total Expenditures'][$month] = (int) $totalExpenditures;
 
@@ -244,7 +245,6 @@ class BreakdownTable extends Component
     {
         // Subcategories to track (excluding Bills which is a category)
         $trackedSubcategories = [
-            'Mortgage',
             'Groceries',
             'Eating Out',
             'Entertainment',
@@ -265,12 +265,10 @@ class BreakdownTable extends Component
             }
         }
 
-        $mortgage = $subcategories->where('name', 'Mortgage')->first();
         // Total Bills (all Bill category transactions)
         $billCategory = Category::query()->where('name', 'Bill')->first();
         if ($billCategory) {
             $totalBills = $monthTransactions
-                ->where('subcategory_id', '!=', $subcategories->where('name', 'Mortgage')->first()->id)
                 ->where('category_id', $billCategory->id)
                 ->select('transaction_date', 'description', 'amount', 'subcategory')
                 ->sum('amount') ?? 0;
@@ -278,6 +276,8 @@ class BreakdownTable extends Component
         } else {
             $this->breakdownData['Total Bills'][$month] = 0;
         }
+
+        $this->breakdownData['Total Mortgage'][$month] = $monthTransactions->where('category.name', 'Housing')->sum('amount', 0);
     }
 
     /**
@@ -312,10 +312,12 @@ class BreakdownTable extends Component
                         ? $userTransactions->where('subcategory_id', $subcategory->id)->sum('amount') ?? 0
                         : 0;
                     $totalForCategory = $this->breakdownData["Total {$categoryName}"][$month] ?? 0;
+                    /* dd($totalForCategory, $categoryName, $subcategory->id, $userTransactions->where('subcategory.name', 'Mortgage'), $userTransactions->where('subcategory_id', $subcategory->id)->sum('amount'), __METHOD__ . ':' . __LINE__); */
                 }
 
                 // In-month contribution (actual amount paid by user)
                 $this->breakdownData["{$user->name} In-month {$categoryName} Contribution"][$month] = (int) $userContribution;
+                /* dd($this->breakdownData, __METHOD__ . ':' . __LINE__); */
 
                 // Slice (percentage of total category spending by this user)
                 $slice = $totalForCategory > 0

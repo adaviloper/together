@@ -47,7 +47,7 @@ class TransactionsTable
                     ->searchable(),
                 SelectColumn::make('category_id')
                     ->label('Category')
-                    ->options(Category::pluck('name', 'id')->toArray())
+                    ->options(Category::orderBy('name')->pluck('name', 'id')->toArray())
                     ->getStateUsing(function (Model $record): ?string {
                         return $record->category_id
                             ?? $record->subcategory?->category_id;
@@ -69,6 +69,7 @@ class TransactionsTable
                         }
 
                         return Subcategory::query()
+                            ->orderBy('name')
                             ->where('category_id', $categoryId)
                             ->pluck('name', 'id')
                             ->toArray();
