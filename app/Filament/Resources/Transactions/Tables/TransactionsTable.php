@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Transactions\Tables;
 
 use App\Filament\Imports\TransactionImporter;
+use App\Filament\Resources\Transactions\TransactionResource;
 use App\Models\Category;
 use App\Models\Subcategory;
 use App\Models\User;
@@ -13,10 +14,12 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\ImportAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\QueryBuilder\Constraints\DateConstraint;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Filters\SelectFilter;
@@ -168,9 +171,34 @@ class TransactionsTable
                         DateConstraint::make('transaction_date')
                     ])
             ])
+            ->recordAction(fn (Model $record) => $record->user_id === auth()->id() ? 'edit' : null)
+            ->recordUrl(fn (Model $record) => $record->user_id !== auth()->id()
+                ? TransactionResource::getUrl('view', ['record' => $record])
+                : null
+            )
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()
+                    ->form([
+                        DatePicker::make('transaction_date')
+                            ->required(),
+                        Select::make('category_id')
+                            ->label('Category')
+                            ->options(Category::orderBy('name')->pluck('name', 'id'))
+                            ->live(),
+                        Select::make('subcategory_id')
+                            ->label('Subcategory')
+                            ->options(fn ($get) => Subcategory::where('category_id', $get('category_id'))
+                                ->orderBy('name')
+                                ->pluck('name', 'id'))
+                            ->live(),
+                        TextInput::make('description'),
+                        TextInput::make('amount')
+                            ->numeric()
+                            ->prefix('$')
+                            ->formatStateUsing(fn ($state) => $state / 100)
+                            ->dehydrateStateUsing(fn ($state) => (int) round($state * 100)),
+                    ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
