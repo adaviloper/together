@@ -11,6 +11,7 @@ use Filament\Actions\ExportAction;
 use Filament\Actions\ImportAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
 
 class CategoriesTable
@@ -20,7 +21,7 @@ class CategoriesTable
         return $table
             ->modifyQueryUsing(fn ($query) => $query->withSum('subcategories', 'monthly_budgeted'))
             ->columns([
-                TextColumn::make('name')
+                TextInputColumn::make('name')
                     ->searchable(),
                 TextColumn::make('subcategories_sum_monthly_budgeted')
                     ->label('Monthly Budgeted')

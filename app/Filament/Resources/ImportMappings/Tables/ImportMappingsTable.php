@@ -10,9 +10,9 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportAction;
 use Filament\Actions\ImportAction;
-use Filament\Tables\Columns\CheckboxColumn;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,7 +39,7 @@ class ImportMappingsTable
                 TextColumn::make('source')
                     ->sortable()
                     ->searchable(),
-                CheckboxColumn::make('skip'),
+                ToggleColumn::make('skip'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

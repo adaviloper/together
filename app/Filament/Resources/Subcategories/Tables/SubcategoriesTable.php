@@ -30,7 +30,7 @@ class SubcategoriesTable
                 SelectColumn::make('category_id')
                     ->optionsRelationship('category', 'name')
                     ->sortable(),
-                TextColumn::make('name')
+                TextInputColumn::make('name')
                     ->sortable()
                     ->searchable(),
                 TextInputColumn::make('monthly_budgeted')
