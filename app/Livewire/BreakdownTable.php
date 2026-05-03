@@ -312,12 +312,10 @@ class BreakdownTable extends Component
                         ? $userTransactions->where('subcategory_id', $subcategory->id)->sum('amount') ?? 0
                         : 0;
                     $totalForCategory = $this->breakdownData["Total {$categoryName}"][$month] ?? 0;
-                    /* dd($totalForCategory, $categoryName, $subcategory->id, $userTransactions->where('subcategory.name', 'Mortgage'), $userTransactions->where('subcategory_id', $subcategory->id)->sum('amount'), __METHOD__ . ':' . __LINE__); */
                 }
 
                 // In-month contribution (actual amount paid by user)
                 $this->breakdownData["{$user->name} In-month {$categoryName} Contribution"][$month] = (int) $userContribution;
-                /* dd($this->breakdownData, __METHOD__ . ':' . __LINE__); */
 
                 // Slice (percentage of total category spending by this user)
                 $slice = $totalForCategory > 0
@@ -379,7 +377,7 @@ class BreakdownTable extends Component
 
     public function formatMoney(int|float|null $cents): string
     {
-        if ($cents === null) {
+        if ($cents === null || $cents === 0) {
             return '-';
         }
 
@@ -388,7 +386,7 @@ class BreakdownTable extends Component
 
     public function formatPercentage(int|float|null $value): string
     {
-        if ($value === null) {
+        if ($value === null || $value === 0) {
             return '-';
         }
 
