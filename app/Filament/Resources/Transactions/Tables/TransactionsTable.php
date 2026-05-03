@@ -39,8 +39,9 @@ class TransactionsTable
                     ->where('organization_id', auth()->user()->organization_id)
                     ->pluck('id');
 
-                $query->whereIn('user_id', $orgUserIds);
+                $query->whereIn('user_id', $orgUserIds)->orderBy('transaction_date', 'desc');
             })
+            ->defaultPaginationPageOption(50)
             ->columns([
                 TextColumn::make('transaction_date')
                     ->date()
@@ -79,6 +80,7 @@ class TransactionsTable
                     })
                     ->sortable(),
                 TextColumn::make('amount')
+                    ->alignEnd()
                     ->numeric()
                     ->formatStateUsing(fn(int $state) => (new NumberFormatter('en_US', \NumberFormatter::CURRENCY))->formatCurrency($state / 100, 'USD'))
                     ->sortable(),

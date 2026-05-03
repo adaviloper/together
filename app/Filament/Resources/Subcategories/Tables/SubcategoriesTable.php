@@ -26,6 +26,8 @@ class SubcategoriesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->orderBy('name'))
+            ->defaultPaginationPageOption('all')
             ->columns([
                 SelectColumn::make('category_id')
                     ->optionsRelationship('category', 'name')

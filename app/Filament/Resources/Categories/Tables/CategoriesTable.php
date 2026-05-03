@@ -19,7 +19,7 @@ class CategoriesTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($query) => $query->withSum('subcategories', 'monthly_budgeted'))
+            ->modifyQueryUsing(fn ($query) => $query->orderBy('name')->withSum('subcategories', 'monthly_budgeted'))
             ->columns([
                 TextInputColumn::make('name')
                     ->searchable(),
