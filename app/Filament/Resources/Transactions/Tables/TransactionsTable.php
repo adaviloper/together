@@ -11,7 +11,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\ImportAction;
+use App\Filament\Actions\NormalizingImportAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
@@ -210,7 +210,7 @@ class TransactionsTable
                 ]),
             ])
             ->headerActions([
-                ImportAction::make()
+                NormalizingImportAction::make()
                     ->importer(TransactionImporter::class)
             ]);
     }
