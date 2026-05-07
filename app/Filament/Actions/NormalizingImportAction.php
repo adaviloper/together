@@ -19,33 +19,16 @@ class NormalizingImportAction extends ImportAction
         }
 
         rewind($stream);
-        $content = stream_get_contents($stream);
+        $firstLine = fgets($stream);
+        rewind($stream);
 
-        if ($this->isVenmoFormat($content)) {
+        if (preg_match('/^Account Statement - \(@\w+\)/', (string) $firstLine)) {
+            $content = stream_get_contents($stream);
+
             return $this->normalizeVenmoStream($content);
         }
 
-        $tmpStream = fopen('php://temp', 'r+');
-        fwrite($tmpStream, $content);
-        rewind($tmpStream);
-
-        return $tmpStream;
-    }
-
-    private function isVenmoFormat(string $content): bool
-    {
-        $reader = CsvReader::createFromString($content);
-        foreach ($reader->getRecords() as $row) {
-            if (
-                in_array('Datetime', $row, strict: true) &&
-                in_array('Funding Source', $row, strict: true) &&
-                in_array('Amount (tip)', $row, strict: true)
-            ) {
-                return true;
-            }
-        }
-
-        return false;
+        return $stream;
     }
 
     /** @return resource */
