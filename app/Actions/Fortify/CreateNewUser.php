@@ -36,11 +36,15 @@ class CreateNewUser implements CreatesNewUsers
             'name' => $input['organization_name'],
         ]);
 
-        return User::create([
-            'name' => $input['name'],
-            'email' => $input['email'],
-            'password' => $input['password'],
-            'organization_id' => $org->id,
-        ]);
+        return tap(
+            User::create([
+                'name' => $input['name'],
+                'email' => $input['email'],
+                'password' => $input['password'],
+            ]),
+            function (User $user) use ($org){
+                $org->users()->attach($user);
+            }
+        );
     }
 }
