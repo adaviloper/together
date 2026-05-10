@@ -13,5 +13,6 @@ class OrganizationTableSeeder extends Seeder
     public function run(): void
     {
         Organization::create(['name' => 'Together']);
+        Organization::factory()->create();
     }
 }

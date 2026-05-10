@@ -13,13 +13,22 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class CategoriesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($query) => $query->orderBy('name')->withSum('subcategories', 'monthly_budgeted'))
+            ->modifyQueryUsing(function (Builder $query) {
+                $orgId = session('current_organization_id');
+
+                if ($orgId) {
+                    $query->where('organization_id', $orgId);
+                }
+
+                $query->orderBy('name')->withSum('subcategories', 'monthly_budgeted');
+            })
             ->columns([
                 TextInputColumn::make('name')
                     ->searchable(),

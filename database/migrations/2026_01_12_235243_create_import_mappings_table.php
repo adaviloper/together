@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('import_mappings', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->foreignUuid('organization_id');
             $table->foreignUuid('subcategory_id')->nullable();
             $table->foreignUuid('user_id');
             $table->string('source');

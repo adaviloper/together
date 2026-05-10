@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\ImportMapping;
+use App\Models\Organization;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
@@ -28,13 +29,10 @@ class ImportMappingObserver
             return;
         }
 
-        $userIds = User::query()->where([
-            'organization_id' => auth()->user()->organization_id,
-        ])->get()->pluck('id');
-
-        Transaction::query()->whereIn('user_id', $userIds)
+        Transaction::query()
             ->where([
                 'description' => $importMapping->source,
+                'organization_id' => session('current_organization_id'),
             ])
             ->update([
                 'category_id' => $subcategory->category_id,
@@ -47,16 +45,16 @@ class ImportMappingObserver
      */
     public function deleted(ImportMapping $importMapping): void
     {
-        $userIds = User::query()->where([
-            'organization_id' => auth()->user()->organization_id,
-        ])->get()->pluck('id');
-        $subcategory = $importMapping->subcategory;
-        Log::info($subcategory);
-        Transaction::query()->whereIn('user_id', $userIds)
+        Transaction::query()
             ->where([
                 'description' => $importMapping->source,
+                'organization_id' => session('current_organization_id'),
+                'subcategory_id' => $importMapping->subcategory_id,
             ])
-            ->delete();
+            ->update([
+                'category_id' => null,
+                'subcategory_id' => null,
+            ]);
     }
 
     /**

@@ -16,7 +16,7 @@ class SubcategoryForm
             ->components([
                 Select::make('category_id')
                     ->label('Category')
-                    ->options(Category::query()->pluck('name', 'id')),
+                    ->options(Category::query()->where('organization_id', session('current_organization_id'))->pluck('name', 'id')),
                 TextInput::make('name')
                     ->required(),
                 TextInput::make('monthly_budgeted')

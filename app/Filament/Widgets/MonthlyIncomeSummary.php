@@ -29,12 +29,16 @@ class MonthlyIncomeSummary extends TableWidget
         $month = $this->month ?? now()->month;
         $start = Carbon::create($year, $month)->startOfMonth();
         $end = Carbon::create($year, $month)->endOfMonth();
-        $incomeCategory = Category::query()->where('name', 'Income')->first();
+        $incomeCategory = Category::query()
+            ->where('name', 'Income')
+            ->where('organization_id', session('current_organization_id'))
+            ->first();
 
         return $table
             ->heading('Income Summary')
             ->query(fn (): Builder => Transaction::query()
-                ->where('category_id', $incomeCategory->id)
+                ->when($incomeCategory, fn (Builder $q) => $q->where('category_id', $incomeCategory->id))
+                ->when(! $incomeCategory, fn (Builder $q) => $q->whereRaw('1 = 0'))
                 ->where('transaction_date', '>=', $start)
                 ->where('transaction_date', '<=', $end)
                 ->with('user')

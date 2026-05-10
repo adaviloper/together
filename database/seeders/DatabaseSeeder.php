@@ -17,21 +17,30 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
         $this->call(OrganizationTableSeeder::class);
 
-        $organization = Organization::query()->first();
+        /** @var Organization $organization */
+        [$together, $organization] = Organization::query()->get()->partition(function (Organization $organization) { return $organization->name === 'Together'; });
 
         /** @var User $user1 */
         $user1 = User::create([
             'name' => config('dev.users.primary'),
             'email' => config('dev.users.primary') . '@together.com',
             'password' => Hash::make('password'),
-            'organization_id' => $organization->id,
         ]);
         /** @var User $user2 */
         $user2 = User::create([
             'name' => config('dev.users.secondary'),
             'email' => config('dev.users.secondary') . '@together.com',
             'password' => Hash::make('password'),
-            'organization_id' => $organization->id,
+        ]);
+
+        $together->first()->users()->attach([
+            $user1->id,
+            $user2->id,
+        ]);
+
+        $organization->first()->users()->attach([
+            $user1->id,
+            $user2->id,
         ]);
 
         /* $this->call(CategoryTableSeeder::class); */

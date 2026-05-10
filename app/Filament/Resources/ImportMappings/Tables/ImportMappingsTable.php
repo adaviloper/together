@@ -23,7 +23,10 @@ class ImportMappingsTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $query->where('user_id', auth()->id());
+                $query->where([
+                    'user_id' => auth()->id(),
+                    'organization_id' => session('current_organization_id'),
+                ]);
             })
             ->columns([
                 SelectColumn::make('subcategory_id')

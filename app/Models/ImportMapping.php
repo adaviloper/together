@@ -28,6 +28,7 @@ class ImportMapping extends Model
     use HasUuids;
 
     protected $fillable = [
+        'organization_id',
         'subcategory_id',
         'user_id',
         'source',

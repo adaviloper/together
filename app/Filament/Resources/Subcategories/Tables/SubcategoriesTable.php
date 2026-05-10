@@ -26,7 +26,15 @@ class SubcategoriesTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($query) => $query->orderBy('name'))
+            ->modifyQueryUsing(function (Builder $query) {
+                $orgId = session('current_organization_id');
+
+                if ($orgId) {
+                    $query->whereHas('category', fn (Builder $q) => $q->where('organization_id', $orgId));
+                }
+
+                $query->orderBy('name');
+            })
             ->defaultPaginationPageOption('all')
             ->columns([
                 SelectColumn::make('category_id')

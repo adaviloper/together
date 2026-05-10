@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $user_id
  * @property string $transaction_date
  * @property string $description
+ * @property string $organization_id
  * @property string $category_id
  * @property string $subcategory_id
  * @property int $amount
@@ -30,6 +31,7 @@ class Transaction extends Model
     use HasUuids;
 
     protected $fillable = [
+        'organization_id',
         'category_id',
         'subcategory_id',
         'user_id',
@@ -41,6 +43,11 @@ class Transaction extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class)->orderBy('name', 'asc');
+    }
+
+    public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class)->orderBy('name', 'asc');
     }
 
     public function subcategory(): BelongsTo

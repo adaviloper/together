@@ -21,8 +21,7 @@ class TransactionTableSeeder extends Seeder
 
     public function __construct()
     {
-        $this->user1 = User::query()->first();
-        $this->user2 = User::query()->latest()->first();
+        $this->users = User::query()->get();
 
         $this->categories = Category::query()->with('subcategories')->get()->keyBy('name');
     }
@@ -34,25 +33,22 @@ class TransactionTableSeeder extends Seeder
     {
         /* $year = 2025; */
         /* $month = 12; */
-        for ($year = 2022; $year <= now()->year + 1; $year++) {
-            for ($month = 1; $month <= 12; $month++) {
-                try {
-                    $this->generateTransaction('Income', $this->user1, $year, $month, 2);
-                    $this->generateTransaction('Income', $this->user2, $year, $month, 2);
+        foreach ($this->users as $user) {
+            for ($year = 2022; $year <= now()->year + 1; $year++) {
+                for ($month = 1; $month <= 12; $month++) {
+                    try {
+                        $this->generateTransaction('Income', $user, $year, $month, 2);
 
-                    $this->generateTransaction('Bill', $this->user1, $year, $month, 12);
-                    $this->generateTransaction('Bill', $this->user2, $year, $month, 12);
+                        $this->generateTransaction('Bill', $user, $year, $month, 12);
 
-                    $this->generateTransaction('Expense', $this->user1, $year, $month, 36);
-                    $this->generateTransaction('Expense', $this->user2, $year, $month, 36);
+                        $this->generateTransaction('Expense', $user, $year, $month, 36);
 
-                    /* $this->generateTransaction('Saving Goal', $this->user1, $year, $month, 2); */
-                    /* $this->generateTransaction('Saving Goal', $this->user2, $year, $month, 2); */
-                    /**/
-                    /* $this->generateTransaction('Debt', $this->user1, $year, $month, 2); */
-                    /* $this->generateTransaction('Debt', $this->user2, $year, $month, 2); */
-                } catch (\Throwable $th) {
-                    dd($th, __METHOD__ . ':' . __LINE__);
+                        /* $this->generateTransaction('Saving Goal', $user, $year, $month, 2); */
+
+                        /* $this->generateTransaction('Debt', $user, $year, $month, 2); */
+                    } catch (\Throwable $th) {
+                        dd($th, __METHOD__ . ':' . __LINE__);
+                    }
                 }
             }
         }
@@ -61,6 +57,7 @@ class TransactionTableSeeder extends Seeder
     public function generateTransaction(string $category, User $user, int $year, int $month, int $count = 1): void
     {
         $subcategories = $this->categories[$category]->subcategories;
+        /* dd($subcategories->pluck('name'), __METHOD__ . ':' . __LINE__); */
 
         for ($i = 0; $i < $count; $i++) {
             $subcategory = $subcategories->random();

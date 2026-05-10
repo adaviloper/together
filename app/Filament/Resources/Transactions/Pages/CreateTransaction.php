@@ -13,6 +13,7 @@ class CreateTransaction extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['user_id'] = Auth::id();
+        $data['organization_id'] = session('current_organization_id');
 
         return $data;
     }

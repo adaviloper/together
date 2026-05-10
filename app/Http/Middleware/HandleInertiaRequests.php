@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Organization;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -38,12 +39,25 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
+        $user = $request->user();
+        $organizations = $user ? $user->organization()->get(['organizations.id', 'organizations.name']) : collect();
+
+        $currentOrganizationId = $request->session()->get('current_organization_id');
+        $currentOrganization = $organizations->firstWhere('id', $currentOrganizationId)
+            ?? $organizations->first();
+
+        if ($currentOrganization && $currentOrganizationId !== $currentOrganization->id) {
+            $request->session()->put('current_organization_id', $currentOrganization->id);
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+                'organizations' => $organizations,
+                'currentOrganization' => $currentOrganization,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

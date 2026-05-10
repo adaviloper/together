@@ -26,7 +26,10 @@ class MonthlyCategorySummary extends TableWidget
             return $table->query(fn (): Builder => Subcategory::query()->whereRaw('1 = 0'));
         }
 
-        $category = Category::query()->where('name', $this->categoryName)->first();
+        $category = Category::query()
+            ->where('name', $this->categoryName)
+            ->where('organization_id', session('current_organization_id'))
+            ->first();
         $year = $this->year ?? now()->year;
         $month = $this->month ?? now()->month;
         $start = Carbon::create($year, $month)->startOfMonth();
@@ -38,9 +41,8 @@ class MonthlyCategorySummary extends TableWidget
                     ->where('transaction_date', '>=', $start)
                     ->where('transaction_date', '<=', $end),
                 ])
-                ->where([
-                    'category_id' => $category->id,
-                ]))
+                ->when($category, fn (Builder $q) => $q->where('category_id', $category->id))
+                ->when(! $category, fn (Builder $q) => $q->whereRaw('1 = 0')))
             ->columns([
                 TextColumn::make('name'),
                 TextColumn::make('monthly_budgeted')

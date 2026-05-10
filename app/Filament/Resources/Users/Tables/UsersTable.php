@@ -5,15 +5,22 @@ namespace App\Filament\Resources\Users\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class UsersTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $orgId = session('current_organization_id');
+
+                if ($orgId) {
+                    $query->whereHas('organization', fn (Builder $q) => $q->where('organizations.id', $orgId));
+                }
+            })
             ->columns([
                 TextColumn::make('id')
                     ->searchable(),
@@ -22,12 +29,6 @@ class UsersTable
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
-                TextColumn::make('email_verified_at')
-                    ->dateTime()
-                    ->sortable(),
-                SelectColumn::make('organization_id')
-                    ->optionsRelationship('organization', 'name')
-                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

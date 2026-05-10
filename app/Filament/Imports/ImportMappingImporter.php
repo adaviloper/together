@@ -35,6 +35,7 @@ class ImportMappingImporter extends Importer
             ],
             [
                 'user_id' => auth()->id(),
+                'organization_id' => session('current_organization_id'),
             ]
         );
     }

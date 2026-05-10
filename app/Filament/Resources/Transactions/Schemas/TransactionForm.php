@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Transactions\Schemas;
 
 use App\Models\Category;
 use App\Models\Subcategory;
-use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;

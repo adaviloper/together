@@ -23,9 +23,14 @@ class CategoryImporter extends Importer
 
     public function resolveRecord(): Category
     {
-        return Category::firstOrNew([
-            'name' => $this->data['name'],
-        ]);
+        return Category::firstOrNew(
+            [
+                'name' => $this->data['name'],
+            ],
+            [
+                'organization_id' => session('current_organization_id'),
+            ]
+        );
     }
 
     public static function getCompletedNotificationBody(Import $import): string

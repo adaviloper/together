@@ -62,12 +62,14 @@ class TransactionImporter extends Importer
             ->firstOrCreate([
                 'source' => $this->data['description'],
                 'user_id' => auth()->id(),
+                'organization_id' => session('current_organization_id'),
             ]);
         if ($mapping->skip) {
             return null;
         }
         return new Transaction([
             'user_id' => auth()->id(),
+            'organization_id' => session('current_organization_id'),
         ]);
     }
 

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Transactions\Tables;
 use App\Filament\Imports\TransactionImporter;
 use App\Filament\Resources\Transactions\TransactionResource;
 use App\Models\Category;
+use App\Models\Organization;
 use App\Models\Subcategory;
 use App\Models\User;
 use Filament\Actions\BulkActionGroup;
@@ -35,11 +36,9 @@ class TransactionsTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $orgUserIds = User::query()
-                    ->where('organization_id', auth()->user()->organization_id)
-                    ->pluck('id');
-
-                $query->whereIn('user_id', $orgUserIds)->orderBy('transaction_date', 'desc');
+                if ($orgId = session('current_organization_id')) {
+                    $query->where('organization_id', $orgId);
+                }
             })
             ->defaultPaginationPageOption(50)
             ->columns([
