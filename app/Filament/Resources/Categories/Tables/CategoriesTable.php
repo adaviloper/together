@@ -62,7 +62,8 @@ class CategoriesTable
                     DeleteBulkAction::make(),
                 ]),
                 ImportAction::make()
-                    ->importer(CategoryImporter::class),
+                    ->importer(CategoryImporter::class)
+                    ->options(['organization_id' => session('current_organization_id')]),
                 ExportAction::make()
                     ->exporter(CategoryExporter::class),
             ]);

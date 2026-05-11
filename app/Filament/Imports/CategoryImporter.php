@@ -26,10 +26,8 @@ class CategoryImporter extends Importer
         return Category::firstOrNew(
             [
                 'name' => $this->data['name'],
+                'organization_id' => $this->options['organization_id'],
             ],
-            [
-                'organization_id' => session('current_organization_id'),
-            ]
         );
     }
 

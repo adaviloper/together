@@ -66,7 +66,8 @@ class ImportMappingsTable
                     DeleteBulkAction::make(),
                 ]),
                 ImportAction::make()
-                    ->importer(ImportMappingImporter::class),
+                    ->importer(ImportMappingImporter::class)
+                    ->options(['organization_id' => session('current_organization_id')]),
                 ExportAction::make()
                     ->exporter(ImportMappingExporter::class),
             ]);

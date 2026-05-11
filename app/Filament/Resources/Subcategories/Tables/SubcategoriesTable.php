@@ -91,7 +91,8 @@ class SubcategoriesTable
                     DeleteBulkAction::make(),
                 ]),
                 ImportAction::make()
-                    ->importer(SubcategoryImporter::class),
+                    ->importer(SubcategoryImporter::class)
+                    ->options(['organization_id' => session('current_organization_id')]),
                 ExportAction::make()
                     ->exporter(SubcategoryExporter::class),
             ]);

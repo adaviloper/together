@@ -123,7 +123,7 @@ class TransactionsTable
                     ->options(function () {
                         /** @var User $user */
                         $user = auth()->user();
-                        $org = $user->organization()->with('users')->first();
+                        $org = $user->organizations()->with('users')->first();
                         return $org->users->mapWithKeys(fn ($user) => [$user->id => $user->name]);
                     })
                     ->query(function (Builder $query, array $data) {
@@ -211,6 +211,7 @@ class TransactionsTable
             ->headerActions([
                 NormalizingImportAction::make()
                     ->importer(TransactionImporter::class)
+                    ->options(['organization_id' => session('current_organization_id')])
             ]);
     }
 }
