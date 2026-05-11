@@ -56,7 +56,15 @@ class ImportMappingsTable
                 Filter::make('uncategorized')
                     ->query(function(Builder $query): Builder {
                         return $query->whereNull('subcategory_id');
-                    })
+                    }),
+                Filter::make('skipped')
+                    ->query(function(Builder $query): Builder {
+                        return $query->whereSkip(true);
+                    }),
+                Filter::make('not_skipped')
+                    ->query(function(Builder $query): Builder {
+                        return $query->whereSkip(false);
+                    }),
             ])
             ->recordActions([
                 EditAction::make(),
