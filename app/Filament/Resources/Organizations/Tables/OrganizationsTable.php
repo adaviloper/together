@@ -8,12 +8,19 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class OrganizationsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->whereHas(
+                    'users',
+                    fn (Builder $q) => $q->where('users.id', auth()->id()),
+                );
+            })
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
