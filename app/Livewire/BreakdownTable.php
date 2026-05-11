@@ -16,6 +16,8 @@ class BreakdownTable extends Component
     #[Url]
     public int $year;
 
+    public string $organizationId;
+
     /** @var Collection<int, User> */
     public Collection $users;
 
@@ -40,7 +42,11 @@ class BreakdownTable extends Component
     public function mount(): void
     {
         $this->year = $this->year ?? now()->year;
-        $this->users = User::query()->orderBy('name')->get();
+        $this->organizationId = session('current_organization_id');
+        $this->users = User::query()
+            ->whereHas('organizations', fn ($q) => $q->where('organizations.id', $this->organizationId))
+            ->orderBy('name')
+            ->get();
         $this->months = $this->getMonths();
         $this->calculateBreakdownData();
     }
@@ -83,12 +89,14 @@ class BreakdownTable extends Component
         // Get all transactions for the year grouped by month and user
         $transactions = Transaction::query()
             ->with(['category', 'subcategory', 'user'])
+            ->where('organization_id', $this->organizationId)
             ->whereYear('transaction_date', $this->year)
             ->get();
 
         // Get all subcategories for expected totals
         $subcategories = Subcategory::query()
             ->with('category')
+            ->whereHas('category', fn ($q) => $q->where('organization_id', $this->organizationId))
             ->get();
 
         // Calculate data for each month
@@ -266,7 +274,7 @@ class BreakdownTable extends Component
         }
 
         // Total Bills (all Bill category transactions)
-        $billCategory = Category::query()->where('name', 'Bill')->first();
+        $billCategory = Category::query()->where('name', 'Bill')->where('organization_id', $this->organizationId)->first();
         if ($billCategory) {
             $totalBills = $monthTransactions
                 ->where('category_id', $billCategory->id)
@@ -293,7 +301,7 @@ class BreakdownTable extends Component
         Collection $subcategories,
         array $splitRatios
     ): void {
-        $billCategory = Category::query()->where('name', 'Bill')->first();
+        $billCategory = Category::query()->where('name', 'Bill')->where('organization_id', $this->organizationId)->first();
 
         foreach ($this->users as $user) {
             $userTransactions = $monthTransactions->where('user_id', $user->id);
