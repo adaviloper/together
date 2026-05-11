@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Transactions\Tables;
 use App\Filament\Imports\TransactionImporter;
 use App\Filament\Resources\Transactions\TransactionResource;
 use App\Models\Category;
-use App\Models\Organization;
 use App\Models\Subcategory;
 use App\Models\User;
 use Filament\Actions\BulkActionGroup;
