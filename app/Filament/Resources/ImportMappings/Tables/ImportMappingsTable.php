@@ -57,6 +57,13 @@ class ImportMappingsTable
                     ->query(function(Builder $query): Builder {
                         return $query->whereNull('subcategory_id');
                     }),
+                Filter::make('unreviewed')
+                    ->query(function(Builder $query): Builder {
+                        return $query->where([
+                            'skip' => false,
+                            'subcategory_id' => null,
+                        ]);
+                    }),
                 Filter::make('skipped')
                     ->query(function(Builder $query): Builder {
                         return $query->whereSkip(true);
