@@ -32,14 +32,15 @@ class SubcategoriesTable
                 if ($orgId) {
                     $query->whereHas('category', fn (Builder $q) => $q->where('organization_id', $orgId));
                 }
-
-                $query->orderBy('name');
             })
             ->defaultPaginationPageOption('all')
             ->columns([
                 SelectColumn::make('category_id')
                     ->optionsRelationship('category', 'name')
-                    ->sortable(),
+                    ->sortable()
+                    ->afterStateUpdated(function (Subcategory $record) {
+                        $record->transactions()->update(['category_id' => $record->category_id]);
+                    }),
                 TextInputColumn::make('name')
                     ->sortable()
                     ->searchable(),

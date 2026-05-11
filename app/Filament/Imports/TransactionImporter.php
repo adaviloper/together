@@ -50,6 +50,9 @@ class TransactionImporter extends Importer
                 ->guess(['Debit', ' Amount', 'debit', 'amount'])
                 ->fillRecordUsing(function (?string $state, array $data, Transaction $record): void {
                     $amount = $state ?? $data['credit'] ?? $data['Credit'];
+                    if ($amount < 0) {
+                        $amount *= -1;
+                    }
                     $record->amount = (int) round((float) $amount * 100);
                 })
             ,
