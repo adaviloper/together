@@ -16,7 +16,7 @@ class OrganizationSwitcherController extends Controller
         $organizationId = $request->input('organization_id');
 
         $belongs = $request->user()
-            ->organization()
+            ->organizations()
             ->where('organizations.id', $organizationId)
             ->exists();
 

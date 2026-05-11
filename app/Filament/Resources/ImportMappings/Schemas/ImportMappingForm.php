@@ -22,7 +22,7 @@ class ImportMappingForm
             ->all();
 
         $users = auth()->user()
-            ->organization()
+            ->organizations()
             ->with('users')
             ->first()->users->pluck('name', 'id');
 

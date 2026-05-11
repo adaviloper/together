@@ -18,7 +18,7 @@ class UsersTable
                 $orgId = session('current_organization_id');
 
                 if ($orgId) {
-                    $query->whereHas('organization', fn (Builder $q) => $q->where('organizations.id', $orgId));
+                    $query->whereHas('organizations', fn (Builder $q) => $q->where('organizations.id', $orgId));
                 }
             })
             ->columns([

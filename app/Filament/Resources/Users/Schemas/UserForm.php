@@ -33,7 +33,7 @@ class UserForm
                 DateTimePicker::make('two_factor_confirmed_at'),
                 Select::make('organization_id')
                     ->required()
-                    ->relationship('organization', 'name'),
+                    ->relationship('organizations', 'name'),
             ]);
     }
 }
