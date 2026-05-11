@@ -63,7 +63,7 @@ class User extends Authenticatable
         ];
     }
 
-    public function organization(): BelongsToMany
+    public function organizations(): BelongsToMany
     {
         return $this->belongsToMany(Organization::class);
     }

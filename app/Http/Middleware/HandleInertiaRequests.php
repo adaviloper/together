@@ -40,7 +40,7 @@ class HandleInertiaRequests extends Middleware
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
         $user = $request->user();
-        $organizations = $user ? $user->organization()->get(['organizations.id', 'organizations.name']) : collect();
+        $organizations = $user ? $user->organizations()->get(['organizations.id', 'organizations.name']) : collect();
 
         $currentOrganizationId = $request->session()->get('current_organization_id');
         $currentOrganization = $organizations->firstWhere('id', $currentOrganizationId)

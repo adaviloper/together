@@ -1,6 +1,6 @@
 @php
     $user = auth()->user();
-    $organizations = $user ? $user->organization()->get(['organizations.id', 'organizations.name']) : collect();
+    $organizations = $user ? $user->organizations()->get(['organizations.id', 'organizations.name']) : collect();
     $currentOrganizationId = session('current_organization_id');
     $current = $currentOrganizationId ? $organizations->firstWhere('id', $currentOrganizationId) : null;
 @endphp

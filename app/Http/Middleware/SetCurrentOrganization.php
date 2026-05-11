@@ -13,7 +13,7 @@ class SetCurrentOrganization
         $user = $request->user();
 
         if ($user && ! $request->session()->has('current_organization_id')) {
-            $first = $user->organization()->value('organizations.id');
+            $first = $user->organizations()->value('organizations.id');
 
             if ($first) {
                 $request->session()->put('current_organization_id', $first);
