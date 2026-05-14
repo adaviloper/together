@@ -15,6 +15,7 @@ services:
       DB_DATABASE: together
       DB_USERNAME: laravel
       DB_PASSWORD: password
+      QUEUE_CONNECTION: sync
     volumes:
       - db_data:/var/lib/mysql
       - app_storage:/var/www/html/storage
