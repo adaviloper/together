@@ -12,7 +12,6 @@ class ImportMappingForm
     public static function configure(Schema $schema): Schema
     {
         $subcategoryOptions = Category::query()
-            ->where('organization_id', session('current_organization_id'))
             ->orderBy('name')
             ->with('subcategories')
             ->get()

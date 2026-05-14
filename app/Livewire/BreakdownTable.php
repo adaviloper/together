@@ -89,7 +89,6 @@ class BreakdownTable extends Component
         // Get all transactions for the year grouped by month and user
         $transactions = Transaction::query()
             ->with(['category', 'subcategory', 'user'])
-            ->where('organization_id', $this->organizationId)
             ->whereYear('transaction_date', $this->year)
             ->get();
 
@@ -274,7 +273,9 @@ class BreakdownTable extends Component
         }
 
         // Total Bills (all Bill category transactions)
-        $billCategory = Category::query()->where('name', 'Bill')->where('organization_id', $this->organizationId)->first();
+        $billCategory = Category::query()
+            ->where('name', 'Bill')
+            ->first();
         if ($billCategory) {
             $totalBills = $monthTransactions
                 ->where('category_id', $billCategory->id)
@@ -301,7 +302,9 @@ class BreakdownTable extends Component
         Collection $subcategories,
         array $splitRatios
     ): void {
-        $billCategory = Category::query()->where('name', 'Bill')->where('organization_id', $this->organizationId)->first();
+        $billCategory = Category::query()
+            ->where('name', 'Bill')
+            ->first();
 
         foreach ($this->users as $user) {
             $userTransactions = $monthTransactions->where('user_id', $user->id);

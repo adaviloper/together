@@ -28,7 +28,6 @@ class MonthlyCategorySummary extends TableWidget
 
         $category = Category::query()
             ->where('name', $this->categoryName)
-            ->where('organization_id', session('current_organization_id'))
             ->first();
         $year = $this->year ?? now()->year;
         $month = $this->month ?? now()->month;

@@ -21,12 +21,6 @@ class CategoriesTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $orgId = session('current_organization_id');
-
-                if ($orgId) {
-                    $query->where('organization_id', $orgId);
-                }
-
                 $query->orderBy('name')->withSum('subcategories', 'monthly_budgeted');
             })
             ->columns([

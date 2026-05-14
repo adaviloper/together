@@ -34,11 +34,6 @@ class TransactionsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                if ($orgId = session('current_organization_id')) {
-                    $query->where('organization_id', $orgId);
-                }
-            })
             ->defaultPaginationPageOption(50)
             ->columns([
                 TextColumn::make('transaction_date')
@@ -49,7 +44,7 @@ class TransactionsTable
                     ->searchable(),
                 SelectColumn::make('category_id')
                     ->label('Category')
-                    ->options(Category::orderBy('name')->pluck('name', 'id')->toArray())
+                    ->options(Category::query()->orderBy('name')->pluck('name', 'id')->toArray())
                     ->getStateUsing(function (Model $record): ?string {
                         return $record->category_id
                             ?? $record->subcategory?->category_id;

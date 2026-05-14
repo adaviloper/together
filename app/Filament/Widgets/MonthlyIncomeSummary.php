@@ -31,7 +31,6 @@ class MonthlyIncomeSummary extends TableWidget
         $end = Carbon::create($year, $month)->endOfMonth();
         $incomeCategory = Category::query()
             ->where('name', 'Income')
-            ->where('organization_id', session('current_organization_id'))
             ->first();
 
         return $table

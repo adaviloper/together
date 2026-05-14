@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\CurrentOrgScope;
 use App\Policies\TransactionPolicy;
 use Database\Factories\TransactionFactory;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,6 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @method static TransactionFactory factory()
  */
+#[ScopedBy(CurrentOrgScope::class)]
 #[UsePolicy(TransactionPolicy::class)]
 class Transaction extends Model
 {

@@ -33,7 +33,6 @@ class MonthlyCashFlowSummary extends TableWidget
             ->heading('Cash Flow Summary')
             ->query(fn (): Builder => Category::query()
                 ->where('name', '!=', 'income')
-                ->where('organization_id', session('current_organization_id'))
                 ->with(['subcategories', 'transactions' => fn ($query) => $query
                     ->where('transaction_date', '>=', $start)
                     ->where('transaction_date', '<=', $end),
