@@ -17,6 +17,30 @@ else
     grep "^APP_KEY=" .env | sed 's/APP_KEY=//' > "$APP_KEY_FILE"
 fi
 
+# Apply environment variable overrides to .env
+env_vars=(
+    APP_NAME
+    APP_ENV
+    APP_DEBUG
+    APP_URL
+    DB_CONNECTION
+    DB_HOST
+    DB_PORT
+    DB_DATABASE
+    DB_USERNAME
+    DB_PASSWORD
+    SESSION_DRIVER
+    QUEUE_CONNECTION
+    CACHE_STORE
+)
+
+for var in "${env_vars[@]}"; do
+    val=$(printenv "$var")
+    if [ -n "$val" ]; then
+        sed -i "s|^${var}=.*|${var}=${val}|" .env
+    fi
+done
+
 # Initialize MariaDB data directory if this is a fresh volume
 if [ ! -d /var/lib/mysql/mysql ]; then
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
