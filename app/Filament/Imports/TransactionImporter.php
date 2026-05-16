@@ -46,14 +46,12 @@ class TransactionImporter extends Importer
             // For checking account format - single amount column
             ImportColumn::make('amount')
                 ->label('Transaction Amount')
-                ->rules(['numeric', 'nullable'])
+                ->rules(['nullable'])
                 ->guess(['Debit', ' Amount', 'debit', 'amount'])
                 ->fillRecordUsing(function (?string $state, array $data, Transaction $record): void {
-                    $amount = $state ?? $data['credit'] ?? $data['Credit'];
-                    if ($amount < 0) {
-                        $amount *= -1;
-                    }
-                    $record->amount = (int) round((float) $amount * 100);
+                    $raw = (string) ($state ?? $data['credit'] ?? $data['Credit'] ?? '0');
+                    $numeric = (float) preg_replace('/[^0-9.]/', '', $raw);
+                    $record->amount = (int) round($numeric * 100);
                 })
             ,
         ];
