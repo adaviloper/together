@@ -6,15 +6,27 @@ mkdir -p storage bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
-APP_KEY_FILE=storage/.app_key
+# Apply any environment variables that match keys in .env.example
+while IFS= read -r line; do
+    [[ "$line" =~ ^[[:space:]]*# ]] && continue
+    [[ "$line" != *"="* ]] && continue
+    key="${line%%=*}"
+    key="${key//[[:space:]]/}"
+    [[ -z "$key" ]] && continue
+    if [ "${!key+x}" = x ]; then
+        sed -i "s|^${key}=.*|${key}=${!key}|" .env
+    fi
+done < .env.example
 
-if [ -n "$APP_KEY" ]; then
-    sed -i "s|^APP_KEY=.*|APP_KEY=$APP_KEY|" .env
-elif [ -f "$APP_KEY_FILE" ]; then
-    sed -i "s|^APP_KEY=.*|APP_KEY=$(cat $APP_KEY_FILE)|" .env
-else
-    php artisan key:generate --force
-    grep "^APP_KEY=" .env | sed 's/APP_KEY=//' > "$APP_KEY_FILE"
+# Ensure APP_KEY is set — fall back to a persisted key or generate a fresh one
+APP_KEY_FILE=storage/.app_key
+if [ -z "$APP_KEY" ]; then
+    if [ -f "$APP_KEY_FILE" ]; then
+        sed -i "s|^APP_KEY=.*|APP_KEY=$(cat $APP_KEY_FILE)|" .env
+    else
+        php artisan key:generate --force
+        grep "^APP_KEY=" .env | sed 's/APP_KEY=//' > "$APP_KEY_FILE"
+    fi
 fi
 
 # Initialize MariaDB data directory if this is a fresh volume
