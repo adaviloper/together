@@ -35,7 +35,7 @@ env_vars=(
 )
 
 for var in "${env_vars[@]}"; do
-    val=$(printenv "$var")
+    val="${!var}"
     if [ -n "$val" ]; then
         sed -i "s|^${var}=.*|${var}=${val}|" .env
     fi
