@@ -31,9 +31,6 @@ class UserForm
                     ->default(null)
                     ->columnSpanFull(),
                 DateTimePicker::make('two_factor_confirmed_at'),
-                Select::make('organization_id')
-                    ->required()
-                    ->relationship('organizations', 'name'),
             ]);
     }
 }

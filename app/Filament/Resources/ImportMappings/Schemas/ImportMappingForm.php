@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ImportMappings\Schemas;
 use App\Models\Category;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 
 class ImportMappingForm
@@ -20,19 +21,10 @@ class ImportMappingForm
             ])
             ->all();
 
-        $users = auth()->user()
-            ->organizations()
-            ->with('users')
-            ->first()->users->pluck('name', 'id');
-
         return $schema
             ->components([
                 Select::make('subcategory_id')
                     ->options($subcategoryOptions)
-                    ->searchable()
-                    ->required(),
-                Select::make('user_id')
-                    ->options($users)
                     ->searchable()
                     ->required(),
                 TextInput::make('source')
