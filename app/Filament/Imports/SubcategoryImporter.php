@@ -31,7 +31,8 @@ class SubcategoryImporter extends Importer
                 ->rules(['required', 'max:255']),
             ImportColumn::make('fixed_split_ratio')
                 ->numeric()
-                ->rules(['integer']),
+                ->ignoreBlankState()
+                ->rules(['nullable', 'integer']),
         ];
     }
 
