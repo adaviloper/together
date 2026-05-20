@@ -2,12 +2,10 @@
 
 namespace App\Filament\Imports;
 
-use App\Models\ImportMapping;
 use App\Models\Transaction;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Number;
 
 class TransactionImporter extends Importer
@@ -18,59 +16,31 @@ class TransactionImporter extends Importer
     {
         return [
             ImportColumn::make('transaction_date')
-                ->label('Posted Date')
-                ->guess(['Posted Date', 'Date'])
                 ->requiredMapping()
-                ->fillRecordUsing(function (Transaction $record, string $state): void {
-                    $record->transaction_date = Carbon::parse($state)->format('Y-m-d');
-                })
                 ->rules(['required', 'date']),
-
             ImportColumn::make('description')
-                ->label('Description')
-                ->guess([' Description', 'Transaction Description'])
                 ->requiredMapping()
-                ->fillRecordUsing(function (string $state, array $data, Transaction $record): void {
-                    $mapping = ImportMapping::query()
-                        ->firstOrCreate([
-                            'source' => $state,
-                            'user_id' => auth()->id(),
-                        ]);
-
-                    $record->subcategory_id = $mapping->subcategory_id;
-                    $record->category_id = $mapping->subcategory?->category_id;
-                    $record->description = $state;
-                })
                 ->rules(['required', 'max:255']),
-
-            // For checking account format - single amount column
+            ImportColumn::make('category')
+                ->relationship(resolveUsing: 'name'),
+            ImportColumn::make('subcategory')
+                ->relationship(resolveUsing: 'name'),
+            ImportColumn::make('user')
+                ->requiredMapping()
+                ->relationship(resolveUsing: 'name')
+                ->rules(['required']),
             ImportColumn::make('amount')
-                ->label('Transaction Amount')
-                ->rules(['nullable'])
-                ->guess(['Debit', ' Amount', 'debit', 'amount'])
-                ->fillRecordUsing(function (?string $state, array $data, Transaction $record): void {
-                    $raw = (string) ($state ?? $data['credit'] ?? $data['Credit'] ?? '0');
-                    $numeric = (float) preg_replace('/[^0-9.]/', '', $raw);
-                    $record->amount = (int) round($numeric * 100);
-                })
-            ,
+                ->numeric()
+                ->rules(['integer']),
         ];
     }
 
-    public function resolveRecord(): ?Transaction
+    public function resolveRecord(): Transaction
     {
-        $mapping = ImportMapping::query()
-            ->firstOrCreate([
-                'source' => $this->data['description'],
-                'user_id' => auth()->id(),
-                'organization_id' => $this->options['organization_id'],
-            ]);
-        if ($mapping->skip) {
-            return null;
-        }
-        return new Transaction([
-            'user_id' => auth()->id(),
-            'organization_id' => $this->options['organization_id'],
+        return Transaction::firstOrNew([
+            'transaction_date' => $this->data['transaction_date'],
+            'description' => $this->data['description'],
+            'amount' => $this->data['amount'],
         ]);
     }
 
@@ -83,5 +53,15 @@ class TransactionImporter extends Importer
         }
 
         return $body;
+    }
+
+    protected function beforeCreate(): void
+    {
+        $this->record['organization_id'] = session('current_organization_id');
+        \Log::debug('import row:', [
+            'data' => $this->record,
+            'org_id' => session('current_organization_id'),
+            'line' => __METHOD__ . ':' . __LINE__
+        ]);
     }
 }

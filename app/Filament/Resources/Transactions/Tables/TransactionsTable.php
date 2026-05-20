@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Transactions\Tables;
 
+use App\Filament\Imports\BankStatementTransactionImporter;
 use App\Filament\Imports\TransactionImporter;
+use App\Filament\Exports\TransactionExporter;
 use App\Filament\Resources\Transactions\TransactionResource;
 use App\Models\Category;
 use App\Models\Subcategory;
@@ -10,8 +12,10 @@ use App\Models\User;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use App\Filament\Actions\NormalizingImportAction;
+use Filament\Actions\ImportAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
@@ -94,7 +98,9 @@ class TransactionsTable
                 TrashedFilter::make(),
                 Filter::make('uncategorized')
                     ->label('Uncategorized')
-                    ->query(fn (Builder $query) => $query->whereNull('category_id')->orWhereNull('subcategory_id')),
+                    ->query(fn (Builder $query) => $query->where(
+                        fn (Builder $q) => $q->whereNull('category_id')->orWhereNull('subcategory_id')
+                    )),
                 SelectFilter::make('category')
                     ->options(function () {
                         return Category::query()->get()->mapWithKeys(fn ($category) => [$category->id => $category->name]);
@@ -204,8 +210,13 @@ class TransactionsTable
             ])
             ->headerActions([
                 NormalizingImportAction::make()
-                    ->importer(TransactionImporter::class)
-                    ->options(['organization_id' => session('current_organization_id')])
+                    ->label('Import from Bank Statement')
+                    ->importer(BankStatementTransactionImporter::class)
+                    ->options(['organization_id' => session('current_organization_id')]),
+                ImportAction::make()
+                    ->importer(TransactionImporter::class),
+                ExportAction::make()
+                    ->exporter(TransactionExporter::class),
             ]);
     }
 }
