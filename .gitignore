@@ -28,5 +28,6 @@ npm-debug.log
 phpstan.neon
 yarn-error.log
 
+internal/
 *.tinker
 tasks.md
