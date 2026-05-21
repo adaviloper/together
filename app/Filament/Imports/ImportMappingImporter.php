@@ -17,6 +17,9 @@ class ImportMappingImporter extends Importer
         return [
             ImportColumn::make('subcategory')
                 ->relationship(resolveUsing: 'name'),
+            ImportColumn::make('user')
+                ->relationship(resolveUsing: 'name')
+                ->rules(['nullable', 'max:255']),
             ImportColumn::make('source')
                 ->requiredMapping()
                 ->rules(['required', 'max:255']),

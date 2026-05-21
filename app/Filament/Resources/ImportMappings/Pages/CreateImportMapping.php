@@ -12,7 +12,9 @@ class CreateImportMapping extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['organization_id'] = session('current_organization_id');
-        $data['user_id'] = auth()->id();
+        if (!$data['user_id']) {
+            $data['user_id'] = auth()->id();
+        }
 
         return $data;
     }

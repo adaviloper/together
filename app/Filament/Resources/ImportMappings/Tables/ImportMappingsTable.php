@@ -14,6 +14,7 @@ use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -22,12 +23,6 @@ class ImportMappingsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                $query->where([
-                    'user_id' => auth()->id(),
-                    'organization_id' => session('current_organization_id'),
-                ]);
-            })
             ->columns([
                 SelectColumn::make('subcategory_id')
                     ->options(Subcategory::query()
@@ -38,6 +33,7 @@ class ImportMappingsTable
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('user.name')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('source')
                     ->sortable()
@@ -71,6 +67,20 @@ class ImportMappingsTable
                 Filter::make('not_skipped')
                     ->query(function(Builder $query): Builder {
                         return $query->whereSkip(false);
+                    }),
+                SelectFilter::make('user')
+                    ->options(function () {
+                        /** @var User $user */
+                        $user = auth()->user();
+                        $org = $user->organizations()->with('users')->first();
+                        return $org->users->mapWithKeys(fn ($user) => [$user->id => $user->name]);
+                    })
+                    ->query(function (Builder $query, array $data) {
+                        $v = $query->when(
+                            $data['value'],
+                            function (Builder $q, $userId) {
+                                $q->where('user_id', $userId);
+                            });
                     }),
             ])
             ->recordActions([
