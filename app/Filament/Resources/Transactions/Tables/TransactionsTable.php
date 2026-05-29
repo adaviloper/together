@@ -103,7 +103,7 @@ class TransactionsTable
                     )),
                 SelectFilter::make('category')
                     ->options(function () {
-                        return Category::query()->get()->mapWithKeys(fn ($category) => [$category->id => $category->name]);
+                        return Category::query()->orderBy('name')->get()->mapWithKeys(fn ($category) => [$category->id => $category->name]);
                     })
                     ->query(function (Builder $query, array $data) {
                         $query->when($data['value'], function (Builder $q, $categoryId) {
@@ -112,7 +112,8 @@ class TransactionsTable
                     }),
                 SelectFilter::make('subcategory')
                     ->options(function () {
-                        return Subcategory::query()->get()->mapWithKeys(fn ($subcategory) => [$subcategory->id => $subcategory->name]);
+                        $categories = Category::query()->pluck('id');
+                        return Subcategory::query()->whereIn('category_id', $categories->values())->orderBy('name')->get()->mapWithKeys(fn ($subcategory) => [$subcategory->id => $subcategory->name]);
                     })
                     ->query(function (Builder $query, array $data) {
                         $query->when($data['value'], function (Builder $q, $subcategoryId) {
