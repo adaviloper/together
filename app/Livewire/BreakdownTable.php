@@ -91,6 +91,7 @@ class BreakdownTable extends Component
             ->with(['category', 'subcategory', 'user'])
             ->whereYear('transaction_date', $this->year)
             ->get();
+        $transactions = $transactions->where('category.name', '!=', 'Saving Goal');
 
         // Get all subcategories for expected totals
         $subcategories = Subcategory::query()
@@ -129,7 +130,8 @@ class BreakdownTable extends Component
 
                     // Get this subcategory's split ratio for this user
                     $ratio = $subcategory->getSplitRatioForUser($user->id, $incomeRatios, $userIds);
-                    $userExpectedTotal += (int) round($subcategory->monthly_budgeted * $ratio);
+                    $subcategoryTotal = $monthTransactions->where('subcategory_id', $subcategory->id)->sum('amount');
+                    $userExpectedTotal += (int) round($subcategoryTotal * $ratio);
                 }
 
                 $this->breakdownData["{$user->name} Expected Total"][$month] = $userExpectedTotal;
@@ -401,7 +403,7 @@ class BreakdownTable extends Component
             return '-';
         }
 
-        return number_format($value, 1) . '%';
+        return number_format($value, 2) . '%';
     }
 
     public function formatValue(int|float|null $value, string $type): string
