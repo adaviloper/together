@@ -32,9 +32,6 @@ class CategoriesTable
                     ->default(0),
                 TextColumn::make('subcategories_count')
                     ->counts('subcategories'),
-                TextColumn::make('subcategories_count')
-                    ->counts('subcategories')
-                    ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
