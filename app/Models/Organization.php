@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Collection;
 
 /**
@@ -14,6 +15,8 @@ use Illuminate\Support\Collection;
  * @property string $name
  *
  * @property Collection $categories
+ * @property Collection $importMappings
+ * @property Collection $subcategories
  * @property Collection $users
  *
  * @method OrganizationFactory factory()
@@ -29,13 +32,23 @@ class Organization extends Model
         'name',
     ];
 
-    public function users(): BelongsToMany
+    public function importMappings(): HasMany
     {
-        return $this->belongsToMany(User::class);
+        return $this->hasMany(ImportMapping::class);
     }
 
     public function categories(): HasMany
     {
         return $this->hasMany(Category::class);
+    }
+
+    public function subcategories(): HasManyThrough
+    {
+        return $this->hasManyThrough(Subcategory::class, Category::class);
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class);
     }
 }
