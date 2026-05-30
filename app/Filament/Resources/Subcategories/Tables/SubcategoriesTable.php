@@ -33,7 +33,6 @@ class SubcategoriesTable
                     $query->whereHas('category', fn (Builder $q) => $q->where('organization_id', $orgId));
                 }
             })
-            ->defaultPaginationPageOption('all')
             ->columns([
                 SelectColumn::make('category_id')
                     ->optionsRelationship('category', 'name')
