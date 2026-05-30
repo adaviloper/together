@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ImportMappings;
 use App\Filament\Resources\ImportMappings\Pages\CreateImportMapping;
 use App\Filament\Resources\ImportMappings\Pages\EditImportMapping;
 use App\Filament\Resources\ImportMappings\Pages\ListImportMappings;
+use App\Filament\Resources\ImportMappings\RelationManagers\TransactionsRelationManager;
 use App\Filament\Resources\ImportMappings\Schemas\ImportMappingForm;
 use App\Filament\Resources\ImportMappings\Tables\ImportMappingsTable;
 use App\Models\ImportMapping;
@@ -33,7 +34,7 @@ class ImportMappingResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            TransactionsRelationManager::class,
         ];
     }
 

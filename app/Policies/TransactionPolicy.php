@@ -53,7 +53,7 @@ class TransactionPolicy
      */
     public function restore(User $user, Transaction $transaction): bool
     {
-        return true;
+        return $user->id === $transaction->user_id;
     }
 
     /**

@@ -8,7 +8,9 @@ use App\Filament\Exports\TransactionExporter;
 use App\Filament\Resources\Transactions\TransactionResource;
 use App\Models\Category;
 use App\Models\Subcategory;
+use App\Models\Transaction;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -22,6 +24,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\QueryBuilder\Constraints\DateConstraint;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -38,7 +41,6 @@ class TransactionsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultPaginationPageOption(50)
             ->columns([
                 TextColumn::make('transaction_date')
                     ->date()
@@ -201,6 +203,18 @@ class TransactionsTable
                             ->formatStateUsing(fn ($state) => $state / 100)
                             ->dehydrateStateUsing(fn ($state) => (int) round($state * 100)),
                     ]),
+                Action::make('restore')
+                    ->requiresConfirmation()
+                    ->visible(fn (Transaction $record) => $record->deleted_at && $record->user_id === auth()->id())
+                    ->icon(Heroicon::ArrowPath)
+                    ->color('info')
+                    ->action(fn (Transaction $record) => $record->restore()),
+                Action::make('delete')
+                    ->requiresConfirmation()
+                    ->icon(Heroicon::Trash)
+                    ->visible(fn (Transaction $record) => !$record->deleted_at && $record->user_id === auth()->id())
+                    ->color('danger')
+                    ->action(fn (Transaction $record) => $record->delete()),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
