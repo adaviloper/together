@@ -210,7 +210,7 @@ class TransactionsTable
                 ]),
             ])
             ->headerActions([
-                NormalizingImportAction::make()
+                NormalizingImportAction::make('bank_statement_import')
                     ->label('Import from Bank Statement')
                     ->importer(BankStatementTransactionImporter::class)
                     ->options(['organization_id' => session('current_organization_id')]),
